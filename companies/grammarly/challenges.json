@@ -1,0 +1,811 @@
+{
+  "meta": {
+    "candidate": "Sahil Kathiri",
+    "role": "Software Engineer, Front-End — Superhuman / Grammarly Berlin",
+    "version": "1.0",
+    "total": 40,
+    "instructions": "Each challenge has a difficulty, time budget, required criteria, and bonus criteria. When assessing a submission, score each required criterion as PASS/FAIL and each bonus as ACHIEVED/MISSED. Then give an overall grade: STRONG PASS / PASS / BORDERLINE / FAIL. Always comment on: code quality, TypeScript correctness, accessibility, edge case handling, and what a Grammarly/Superhuman interviewer would specifically notice."
+  },
+  "challenges": [
+    {
+      "id": 1,
+      "title": "Character counter with live feedback",
+      "difficulty": "warm-up",
+      "time_budget_minutes": 15,
+      "tags": ["component", "text", "accessibility"],
+      "prompt": "Build a textarea component with a live character counter. The counter changes colour based on thresholds. Submit is disabled when the limit is exceeded.",
+      "required": [
+        "Controlled textarea with a configurable maxLength prop",
+        "Counter turns amber at 80% of limit, red at 100%",
+        "Submit button is disabled when count exceeds limit",
+        "Counter is announced to screen readers via aria-live='polite'"
+      ],
+      "bonus": [
+        "Smooth CSS colour transition on threshold change",
+        "Show remaining vs used count depending on which is smaller",
+        "Accept a formatter prop to support word count instead of character count"
+      ],
+      "interviewer_focus": "Do they reach for useState (correct) or useRef? Do they remember aria-live? Are props typed correctly in TypeScript?"
+    },
+    {
+      "id": 2,
+      "title": "Toggle switch component",
+      "difficulty": "warm-up",
+      "time_budget_minutes": 15,
+      "tags": ["component", "keyboard", "accessibility"],
+      "prompt": "Build an accessible toggle switch that supports both controlled and uncontrolled modes.",
+      "required": [
+        "Controlled (value + onChange) and uncontrolled (defaultChecked) modes",
+        "role='switch', aria-checked, focusable via Tab",
+        "Space and Enter toggle the switch",
+        "Disabled state with correct aria-disabled and visual treatment"
+      ],
+      "bonus": [
+        "CSS-only knob transition animation",
+        "Label position prop: left or right",
+        "forwardRef support"
+      ],
+      "interviewer_focus": "ARIA knowledge, not CSS skill. Does the candidate know role='switch'? Do they use a button element (correct) or a div with onclick (wrong)?"
+    },
+    {
+      "id": 3,
+      "title": "Debounced search input",
+      "difficulty": "warm-up",
+      "time_budget_minutes": 20,
+      "tags": ["async", "component", "hooks"],
+      "prompt": "Search input that debounces keystrokes and fires a mock async fetch. Show loading, results, and empty states.",
+      "required": [
+        "Custom useDebounce hook with configurable delay",
+        "AbortController cancels in-flight requests on new keystroke",
+        "Three distinct UI states: loading, results, empty",
+        "No stale results shown after cancellation"
+      ],
+      "bonus": [
+        "Highlight matched substring in results",
+        "Keyboard navigation through results list",
+        "Results cached per query in a useRef map"
+      ],
+      "interviewer_focus": "The stale request problem is the key test. AbortController + useEffect cleanup is the correct answer. This is directly relevant to Grammarly's real-time suggestion pipeline."
+    },
+    {
+      "id": 4,
+      "title": "Accordion / FAQ component",
+      "difficulty": "warm-up",
+      "time_budget_minutes": 20,
+      "tags": ["component", "keyboard", "accessibility"],
+      "prompt": "Accessible accordion supporting single-expand and multi-expand modes. Full keyboard navigation per the ARIA APG pattern.",
+      "required": [
+        "Single-expand and multi-expand modes via prop",
+        "ARIA: role='region', aria-expanded, aria-controls, aria-labelledby",
+        "Arrow keys navigate between headers; Enter/Space toggles",
+        "Smooth height animation on open/close"
+      ],
+      "bonus": [
+        "Height animation using the CSS grid-template-rows trick (0fr to 1fr)",
+        "defaultOpen prop for initial state",
+        "Focus first item on mount"
+      ],
+      "interviewer_focus": "Knowledge of the ARIA APG accordion pattern without googling. Use of grid-template-rows for animation shows CSS depth."
+    },
+    {
+      "id": 5,
+      "title": "Pill / tag input",
+      "difficulty": "medium",
+      "time_budget_minutes": 25,
+      "tags": ["component", "keyboard", "text"],
+      "prompt": "Input that converts typed text into removable pill tags on Enter or comma. Used in email CC/BCC fields.",
+      "required": [
+        "Enter or comma confirms a tag; Backspace removes last tag when input is empty",
+        "Duplicate tags rejected with inline error",
+        "Each pill has a keyboard-accessible remove button",
+        "Controlled: value (string[]) + onChange prop"
+      ],
+      "bonus": [
+        "Email validation with per-pill error state",
+        "Pasting a comma-separated list creates multiple pills",
+        "Max tags limit with user feedback"
+      ],
+      "interviewer_focus": "This is a Superhuman Mail pattern. Focus management is the tricky part: after removing a pill, where does focus go? Expect a follow-up question on this."
+    },
+    {
+      "id": 6,
+      "title": "Sortable, filterable data table",
+      "difficulty": "medium",
+      "time_budget_minutes": 30,
+      "tags": ["component", "async", "performance"],
+      "prompt": "Table of 100+ rows with client-side sort by any column and text filter. Performance matters.",
+      "required": [
+        "useMemo for filtered and sorted dataset",
+        "Debounced filter input",
+        "Sort indicator (asc/desc/none) per column header",
+        "Correct table semantics: thead, th with scope, caption"
+      ],
+      "bonus": [
+        "Multi-column sort with priority order",
+        "Column resizing",
+        "Virtual scrolling for 10k+ rows"
+      ],
+      "interviewer_focus": "Correct useMemo deps. Interviewer will ask 'what happens at 10k rows?' — candidate should proactively raise virtualization before being asked."
+    },
+    {
+      "id": 7,
+      "title": "Autocomplete / combobox",
+      "difficulty": "medium",
+      "time_budget_minutes": 30,
+      "tags": ["keyboard", "async", "text", "accessibility"],
+      "prompt": "Accessible combobox with typeahead. Fetches suggestions asynchronously. Full keyboard navigation per ARIA APG combobox pattern.",
+      "required": [
+        "role='combobox', aria-expanded, aria-activedescendant correctly wired",
+        "Arrow keys cycle options; Enter selects; Escape closes",
+        "Async fetch with debounce and AbortController",
+        "Matched substring highlighted in option text"
+      ],
+      "bonus": [
+        "Grouped options with role='group'",
+        "Free-text entry allowed (not forced to select from list)",
+        "Recent selections persisted to localStorage"
+      ],
+      "interviewer_focus": "aria-activedescendant is the key attribute — focus stays on the input while screen readers track the active option. Getting this right without looking it up is impressive."
+    },
+    {
+      "id": 8,
+      "title": "Toast / notification system",
+      "difficulty": "medium",
+      "time_budget_minutes": 25,
+      "tags": ["component", "async", "architecture"],
+      "prompt": "Global toast system with a context + hook API. Toasts auto-dismiss, stack, and pause on hover.",
+      "required": [
+        "useToast() hook returning { toast, dismiss }",
+        "Stack up to N toasts; oldest auto-dismissed when limit reached",
+        "Auto-dismiss timer pauses while mouse is over the toast",
+        "Four types: success, error, info, warning with distinct visuals"
+      ],
+      "bonus": [
+        "Animate in from bottom, animate out on dismiss",
+        "Position prop: top/bottom, left/center/right",
+        "Progress bar showing time remaining before dismiss"
+      ],
+      "interviewer_focus": "Architecture question: where does state live? Context + useReducer is the correct answer. Candidate should explain this choice, not just implement it."
+    },
+    {
+      "id": 9,
+      "title": "Infinite scroll feed",
+      "difficulty": "medium",
+      "time_budget_minutes": 30,
+      "tags": ["async", "component", "performance"],
+      "prompt": "Feed that loads more items on scroll using IntersectionObserver. Show skeleton loaders while fetching.",
+      "required": [
+        "IntersectionObserver on a sentinel element at the list bottom",
+        "Skeleton placeholder rows during loading",
+        "Error state with a retry button",
+        "Loading guard (ref or state) prevents duplicate fetches"
+      ],
+      "bonus": [
+        "Pull-to-refresh on mobile",
+        "Cursor-based pagination rather than page number",
+        "Optimistic item removal"
+      ],
+      "interviewer_focus": "The trap is scroll event listeners on window. IntersectionObserver is the correct answer. Cleanup in useEffect return is critical."
+    },
+    {
+      "id": 10,
+      "title": "Keyboard command palette",
+      "difficulty": "medium",
+      "time_budget_minutes": 35,
+      "tags": ["keyboard", "text", "component", "accessibility"],
+      "prompt": "Cmd+K command palette with fuzzy search, keyboard navigation, and focus trapping. Core to Superhuman's product identity.",
+      "required": [
+        "Cmd/Ctrl+K opens; Escape closes",
+        "Fuzzy filter matches non-consecutive characters",
+        "Arrow up/down navigates; Enter executes command",
+        "Focus trapped inside modal while open"
+      ],
+      "bonus": [
+        "Grouped command sections",
+        "Recent commands surface first",
+        "Per-command keyboard shortcut badge displayed"
+      ],
+      "interviewer_focus": "This is Superhuman's exact UX. Discuss focus trapping, role='dialog' + aria-modal. Fuzzy matching: score by match position. Keyboard events must not fire when focus is in a text input."
+    },
+    {
+      "id": 11,
+      "title": "Inline text annotation / highlight",
+      "difficulty": "medium",
+      "time_budget_minutes": 35,
+      "tags": ["text", "component"],
+      "prompt": "Given a string and annotation ranges, render text with highlights. Clicking a highlight shows a popover with the annotation message.",
+      "required": [
+        "Algorithm splits text into plain and annotated segments using offset ranges",
+        "Each annotation has: range [start, end], type (error/warning/suggestion), message",
+        "Click annotated span opens popover with message and dismiss action",
+        "Overlapping ranges handled without crashing"
+      ],
+      "bonus": [
+        "Tab between annotations by keyboard; Enter opens popover",
+        "Multiple types with distinct underline colours/styles",
+        "Accept and reject actions in popover update the text"
+      ],
+      "interviewer_focus": "The core Grammarly challenge. Walk through the segment-splitting algorithm out loud before coding. Overlapping ranges are the hard case — have a strategy ready."
+    },
+    {
+      "id": 12,
+      "title": "Drag-and-drop list reordering",
+      "difficulty": "medium",
+      "time_budget_minutes": 30,
+      "tags": ["component", "keyboard"],
+      "prompt": "Reorderable list using native HTML5 drag-and-drop API (no library). Full keyboard alternative for accessibility.",
+      "required": [
+        "Native drag events: dragstart, dragover, drop, dragend",
+        "Visual drop target indicator during drag",
+        "State updated correctly on drop",
+        "Keyboard alternative: select an item, then arrow keys move it"
+      ],
+      "bonus": [
+        "FLIP animation on reorder",
+        "Multi-item drag selection",
+        "Touch event support"
+      ],
+      "interviewer_focus": "dragover.preventDefault() is required to enable drop. The keyboard alternative is non-trivial — it requires a separate 'selected-for-move' state. Grading on whether a11y is an afterthought or built-in."
+    },
+    {
+      "id": 13,
+      "title": "Real-time collaborative cursor display",
+      "difficulty": "hard",
+      "time_budget_minutes": 40,
+      "tags": ["async", "text", "component"],
+      "prompt": "Textarea where simulated other users' cursor positions are shown as coloured indicators with name labels.",
+      "required": [
+        "Mock WebSocket or setInterval simulates other users moving cursors",
+        "Cursors overlaid at correct character offset positions",
+        "Each user has a unique colour and name label",
+        "Cursor positions update smoothly without flicker"
+      ],
+      "bonus": [
+        "Smooth cursor movement animation",
+        "Name badge fades after inactivity timeout",
+        "Selection ranges shown, not just caret positions"
+      ],
+      "interviewer_focus": "The hard part: mapping character offsets to pixel coordinates in a textarea requires a mirror div technique. Candidate should identify this problem and explain the approach before coding."
+    },
+    {
+      "id": 14,
+      "title": "Virtual list renderer (windowing from scratch)",
+      "difficulty": "hard",
+      "time_budget_minutes": 40,
+      "tags": ["component", "performance"],
+      "prompt": "Render 100k items in a scrollable list with only visible items in the DOM. Build without react-virtual or similar libraries.",
+      "required": [
+        "Visible window calculated from scrollTop + containerHeight + itemHeight",
+        "Only visible items + overscan buffer rendered in DOM",
+        "Spacer div above and below maintains total scroll height",
+        "Scroll position preserved across re-renders"
+      ],
+      "bonus": [
+        "Variable row heights with position caching",
+        "scrollToItem(index) API",
+        "Sticky section headers"
+      ],
+      "interviewer_focus": "Start with fixed-height items — the math is straightforward. Key insight: explain the spacer div technique unprompted. Candidate should state time complexity O(visible) vs O(n)."
+    },
+    {
+      "id": 15,
+      "title": "Rich text mention system (@mention)",
+      "difficulty": "hard",
+      "time_budget_minutes": 45,
+      "tags": ["text", "keyboard", "component"],
+      "prompt": "Textarea where typing @ opens a user picker. Selecting a user inserts a styled, atomic mention chip.",
+      "required": [
+        "@ character triggers picker at cursor position",
+        "Picker filters users as you type after @",
+        "Selected user inserted as a styled inline element",
+        "Mention chip is atomic: Backspace deletes the whole chip, not character by character"
+      ],
+      "bonus": [
+        "Picker positioned relative to cursor coordinates, not textarea corner",
+        "Keyboard navigation in picker without losing typing context",
+        "Mention IDs extractable from the final value"
+      ],
+      "interviewer_focus": "contenteditable is complex. A simpler simulation with a textarea + overlay is acceptable — explain the tradeoff. Making the chip atomic is the hard constraint."
+    },
+    {
+      "id": 16,
+      "title": "Writing suggestion overlay (Grammarly-style)",
+      "difficulty": "hard",
+      "time_budget_minutes": 45,
+      "tags": ["text", "component"],
+      "prompt": "Full Grammarly-style interface: textarea with underlined issue highlights, click to see suggestion card, accept replaces the text.",
+      "required": [
+        "Mirror div technique: overlay positioned exactly over textarea",
+        "Underlines rendered in overlay; textarea has transparent background",
+        "Suggestion card shows: original text, replacement, explanation",
+        "Accept splices replacement at correct offset and removes highlight"
+      ],
+      "bonus": [
+        "Multiple suggestion types with different underline styles",
+        "Undo support after accepting a suggestion",
+        "Keyboard: Tab through suggestions; Enter to accept"
+      ],
+      "interviewer_focus": "The mirror div architecture must be explained before coding. After accepting a suggestion, all subsequent offset ranges must be recalculated — this is the hard part."
+    },
+    {
+      "id": 17,
+      "title": "Undo/redo history manager",
+      "difficulty": "hard",
+      "time_budget_minutes": 35,
+      "tags": ["component", "text", "hooks"],
+      "prompt": "Custom useHistory hook with undo/redo. Applied to a text editor. Coalesces rapid keystrokes into single history entries.",
+      "required": [
+        "useHistory<T>(initial) returns { state, set, undo, redo, canUndo, canRedo }",
+        "set() clears the future stack",
+        "Entries within 500ms are coalesced into one history step",
+        "Cmd+Z and Cmd+Shift+Z keyboard shortcuts"
+      ],
+      "bonus": [
+        "Maximum history size with oldest-entry eviction",
+        "Named history entries for a visual timeline",
+        "Branching history (tree structure, not linear stack)"
+      ],
+      "interviewer_focus": "The coalescing logic is the interesting part — timestamp comparison. Branching history is genuinely hard and worth raising as 'where I'd take this next.'"
+    },
+    {
+      "id": 18,
+      "title": "Collaborative presence indicator",
+      "difficulty": "hard",
+      "time_budget_minutes": 35,
+      "tags": ["async", "component"],
+      "prompt": "Show which users are currently active. Stack up to 3 avatars; overflow as +N. Tooltip shows all names.",
+      "required": [
+        "Simulated presence events via setInterval with join/leave",
+        "Stacked avatar overlap with z-index layering",
+        "First 3 avatars shown; remaining as +N badge",
+        "+N badge has accessible tooltip showing all names on hover/focus"
+      ],
+      "bonus": [
+        "Animated entry and exit for users joining/leaving",
+        "Per-user current-location indicator",
+        "Idle state after configurable inactivity timeout"
+      ],
+      "interviewer_focus": "Stacking CSS: negative margin-left + z-index. Tooltip a11y: role='tooltip' + aria-describedby. FLIP technique for join/leave animation."
+    },
+    {
+      "id": 19,
+      "title": "Resizable split panel layout",
+      "difficulty": "hard",
+      "time_budget_minutes": 40,
+      "tags": ["component", "keyboard"],
+      "prompt": "Two panels with a draggable divider. Min/max constraints. Keyboard resize. Persist to localStorage.",
+      "required": [
+        "Pointer events (not mouse events) for cross-device drag support",
+        "Min panel width constraints enforced during drag",
+        "Keyboard: focus divider, arrow keys resize",
+        "Layout persisted to localStorage and restored on mount"
+      ],
+      "bonus": [
+        "Snap to preset ratios at drag threshold",
+        "Collapse panel on double-click",
+        "Vertical split orientation via prop"
+      ],
+      "interviewer_focus": "setPointerCapture ensures drag works even when cursor leaves the divider. Keyboard interaction requires role='separator' + aria-valuenow + aria-valuemin/max."
+    },
+    {
+      "id": 20,
+      "title": "Email thread reader (Superhuman-style)",
+      "difficulty": "hard",
+      "time_budget_minutes": 50,
+      "tags": ["keyboard", "component", "text"],
+      "prompt": "Stripped-down email client: message list + detail pane. Navigable entirely by keyboard with vim-style shortcuts.",
+      "required": [
+        "j/k to navigate message list",
+        "Enter/o to open message in detail pane",
+        "r to open reply textarea with focus",
+        "e to archive current message and auto-advance to next"
+      ],
+      "bonus": [
+        "? opens keyboard shortcut reference overlay",
+        "/ focuses search input; Escape returns to list",
+        "Unread count badge; message marked read on open"
+      ],
+      "interviewer_focus": "This is Superhuman's actual product. Keyboard events must not fire when focus is in a text input. Show philosophical understanding of keyboard-first design, not just implementation."
+    },
+    {
+      "id": 21,
+      "title": "Custom modal / dialog with focus trap",
+      "difficulty": "warm-up",
+      "time_budget_minutes": 20,
+      "tags": ["component", "keyboard", "accessibility"],
+      "prompt": "A reusable Modal component with a proper focus trap, scroll lock, and accessible overlay dismiss.",
+      "required": [
+        "Focus trapped inside modal: Tab and Shift+Tab cycle only focusable elements inside",
+        "Escape key closes modal",
+        "Clicking overlay backdrop closes modal",
+        "role='dialog', aria-modal='true', aria-labelledby wired to the heading"
+      ],
+      "bonus": [
+        "Return focus to the trigger element on close",
+        "Body scroll locked while modal is open",
+        "Animation: fade-in on open, fade-out on close"
+      ],
+      "interviewer_focus": "Focus trap implementation is the core test. Candidate should query all focusable elements, intercept Tab keydown, and wrap focus from last to first. Returning focus on close is the a11y detail that separates good from great."
+    },
+    {
+      "id": 22,
+      "title": "Multi-step form wizard",
+      "difficulty": "medium",
+      "time_budget_minutes": 35,
+      "tags": ["component", "keyboard", "architecture"],
+      "prompt": "A wizard component that manages multi-step form state, validation per step, and progress indication.",
+      "required": [
+        "Step state managed centrally; each step validates before advancing",
+        "Back navigation preserves filled values",
+        "Progress indicator shows current step and completion",
+        "Final step shows a review summary before submit"
+      ],
+      "bonus": [
+        "URL hash or query param encodes current step for deep linking",
+        "Animated step transition (slide or fade)",
+        "Step components are injected as children (compound component pattern)"
+      ],
+      "interviewer_focus": "Architecture question: does candidate reach for a single flat state object or per-step state? Ask about what happens if a user edits step 1 after completing step 3."
+    },
+    {
+      "id": 23,
+      "title": "Live markdown preview",
+      "difficulty": "medium",
+      "time_budget_minutes": 30,
+      "tags": ["text", "component", "async"],
+      "prompt": "Split-pane editor where the left side accepts markdown input and the right side renders a live HTML preview.",
+      "required": [
+        "Live preview updates as user types (debounced)",
+        "Basic markdown parsed: headings, bold, italic, code, links, lists",
+        "Rendered HTML sanitised before insertion (no XSS)",
+        "Scroll positions synchronised between panes"
+      ],
+      "bonus": [
+        "Syntax highlighting in the editor pane",
+        "Toolbar with formatting buttons that insert markdown syntax",
+        "Export to HTML or download as .md file"
+      ],
+      "interviewer_focus": "XSS sanitisation is the non-obvious requirement — DOMPurify or manual escaping. Scroll sync is the UX challenge. Ask candidate to explain their parsing approach vs using a library."
+    },
+    {
+      "id": 24,
+      "title": "JSON tree viewer",
+      "difficulty": "medium",
+      "time_budget_minutes": 30,
+      "tags": ["component", "text"],
+      "prompt": "Collapsible tree view for arbitrary JSON data. Colour-coded by type. Expandable/collapsible at any depth.",
+      "required": [
+        "Recursive rendering of objects, arrays, primitives",
+        "Type-based colour coding: string, number, boolean, null",
+        "Expand/collapse at any node; expand-all and collapse-all controls",
+        "Key count shown on collapsed nodes (e.g. {3 keys})"
+      ],
+      "bonus": [
+        "In-place editing of primitive values",
+        "Search/filter that highlights matching keys or values",
+        "Copy subtree to clipboard as JSON"
+      ],
+      "interviewer_focus": "Recursive component design. Does candidate handle circular reference detection? What is the TypeScript type for an arbitrary JSON value? (type JSONValue = string | number | boolean | null | JSONValue[] | {[key: string]: JSONValue})"
+    },
+    {
+      "id": 25,
+      "title": "Tooltip system",
+      "difficulty": "warm-up",
+      "time_budget_minutes": 20,
+      "tags": ["component", "keyboard", "accessibility"],
+      "prompt": "A Tooltip component that positions itself intelligently relative to its trigger. Accessible and keyboard-friendly.",
+      "required": [
+        "Appears on hover and focus; hides on blur and mouseout",
+        "Positions itself to stay within the viewport (flip when near edge)",
+        "role='tooltip' on the popover; aria-describedby on the trigger",
+        "Delay prop before show; immediate hide"
+      ],
+      "bonus": [
+        "Arrow/caret pointing toward trigger",
+        "Rich content (not just text string) via children prop",
+        "Animation: fade + subtle scale on appear"
+      ],
+      "interviewer_focus": "The viewport-collision detection is the hard part — getBoundingClientRect + window dimensions. Candidate should handle both sides: CSS makes it look right; ARIA makes it accessible."
+    },
+    {
+      "id": 26,
+      "title": "Custom dropdown / select",
+      "difficulty": "medium",
+      "time_budget_minutes": 25,
+      "tags": ["component", "keyboard", "accessibility"],
+      "prompt": "A styled replacement for the native <select> element. Full keyboard navigation per ARIA listbox pattern.",
+      "required": [
+        "role='listbox' on the dropdown, role='option' on each item",
+        "Arrow keys navigate options; Enter/Space selects; Escape closes",
+        "aria-selected on active option; aria-activedescendant on trigger",
+        "Closes on outside click; repositions to stay in viewport"
+      ],
+      "bonus": [
+        "Type-ahead: typing a letter jumps to matching option",
+        "Multi-select mode with checkboxes",
+        "Grouped options with group labels"
+      ],
+      "interviewer_focus": "The ARIA listbox pattern is more complex than most candidates realise. The distinction between aria-selected (persisted selection) and aria-activedescendant (current keyboard focus) is the key."
+    },
+    {
+      "id": 27,
+      "title": "Diff viewer",
+      "difficulty": "medium",
+      "time_budget_minutes": 35,
+      "tags": ["text", "component"],
+      "prompt": "Side-by-side or unified view showing the difference between two strings line-by-line. Additions in green, deletions in red.",
+      "required": [
+        "Implement a basic LCS (longest common subsequence) diff algorithm",
+        "Line-by-line diff with added/removed/unchanged classification",
+        "Side-by-side and unified view modes",
+        "Line numbers shown in both views"
+      ],
+      "bonus": [
+        "Word-level diff within changed lines",
+        "Collapse unchanged regions (show only ±N lines of context)",
+        "Character-level diff highlighting within changed words"
+      ],
+      "interviewer_focus": "This is the algorithmic challenge in a UI wrapper. Candidate should recognise and implement LCS before reaching for a library. Time complexity should be O(n*m) — ask them to confirm."
+    },
+    {
+      "id": 28,
+      "title": "Rate limiter / throttle hook",
+      "difficulty": "medium",
+      "time_budget_minutes": 25,
+      "tags": ["hooks", "async"],
+      "prompt": "useThrottle and useDebounce hooks. Demonstrate both with a live example showing the difference in behaviour.",
+      "required": [
+        "useDebounce: delays execution until input stops for N ms",
+        "useThrottle: executes at most once per N ms",
+        "Both hooks clean up timers in useEffect return",
+        "Demo component visualises both behaviours side by side"
+      ],
+      "bonus": [
+        "useThrottle accepts leading and trailing options",
+        "useDebounce returns a cancel function",
+        "Visual timeline showing when each hook fires relative to input events"
+      ],
+      "interviewer_focus": "Candidates often confuse debounce and throttle. The visual demo is the communication test — can they explain the difference clearly? Cleanup on unmount is the correctness test."
+    },
+    {
+      "id": 29,
+      "title": "File upload with drag-and-drop",
+      "difficulty": "medium",
+      "time_budget_minutes": 30,
+      "tags": ["component", "async"],
+      "prompt": "File upload zone that accepts drag-and-drop or click-to-browse. Shows per-file upload progress and errors.",
+      "required": [
+        "Drag-over visual feedback on the drop zone",
+        "Simulated async upload per file with progress percentage",
+        "Per-file state: pending, uploading, done, error",
+        "File type and size validation with inline error messages"
+      ],
+      "bonus": [
+        "Multiple file upload with concurrent uploads (max N simultaneous)",
+        "Retry failed uploads",
+        "Image thumbnail preview for image files"
+      ],
+      "interviewer_focus": "dragenter/dragleave fire on child elements too — the bubble-up problem. Candidate should handle this with a counter or by checking relatedTarget. The concurrent upload logic is the architectural challenge."
+    },
+    {
+      "id": 30,
+      "title": "Countdown timer",
+      "difficulty": "warm-up",
+      "time_budget_minutes": 15,
+      "tags": ["component", "async"],
+      "prompt": "A countdown timer component with start, pause, reset. Accurate even when tab is hidden.",
+      "required": [
+        "Start, pause, resume, and reset controls",
+        "Displays MM:SS format",
+        "Does not drift: uses Date.now() delta, not tick counting",
+        "Visual urgency: changes colour in last 10 seconds"
+      ],
+      "bonus": [
+        "Audible alert (Web Audio API) at zero",
+        "Tab title shows remaining time when running",
+        "Configurable initial duration via prop"
+      ],
+      "interviewer_focus": "The drift problem is the test: naive setInterval counting drifts. Using Date.now() to calculate elapsed time on each tick is the correct approach. Most candidates get this wrong without prompting."
+    },
+    {
+      "id": 31,
+      "title": "Virtualized autocomplete with 10k options",
+      "difficulty": "hard",
+      "time_budget_minutes": 45,
+      "tags": ["keyboard", "async", "performance", "accessibility"],
+      "prompt": "Extend challenge #7 (autocomplete) to handle 10,000 options without performance degradation. The dropdown list must be virtualised.",
+      "required": [
+        "Dropdown option list is virtualised (only visible options in DOM)",
+        "Fuzzy filter runs without blocking the main thread (consider useDeferredValue or Web Worker)",
+        "Arrow key navigation works correctly with virtualised list",
+        "aria-activedescendant still correct for screen readers"
+      ],
+      "bonus": [
+        "Web Worker for filtering to guarantee 60fps",
+        "Scroll the virtualised list to keep active option in view",
+        "Loading state while filter result is deferred"
+      ],
+      "interviewer_focus": "This combines challenge 7 with challenge 14. The intersection of accessibility and virtualisation is genuinely hard — aria-activedescendant requires the active option element to exist in the DOM."
+    },
+    {
+      "id": 32,
+      "title": "Spreadsheet-like editable grid",
+      "difficulty": "hard",
+      "time_budget_minutes": 50,
+      "tags": ["component", "keyboard", "text"],
+      "prompt": "A grid of editable cells navigable entirely by keyboard, like a mini spreadsheet.",
+      "required": [
+        "Arrow keys move between cells",
+        "Enter or F2 puts a cell into edit mode; Escape cancels; Enter confirms",
+        "Tab moves to the next cell; Shift+Tab to previous",
+        "Copy (Cmd+C) copies selected cell value to clipboard"
+      ],
+      "bonus": [
+        "Multi-cell selection with Shift+Arrow",
+        "Column and row headers that are resizable",
+        "Paste from clipboard into selected cell or range"
+      ],
+      "interviewer_focus": "Cell focus management is the core challenge. The distinction between 'cell is focused' (keyboard navigation) and 'cell is in edit mode' (text input active) requires careful state design."
+    },
+    {
+      "id": 33,
+      "title": "Pagination component",
+      "difficulty": "warm-up",
+      "time_budget_minutes": 20,
+      "tags": ["component", "keyboard"],
+      "prompt": "A pagination component that displays page numbers with intelligent truncation for large page counts.",
+      "required": [
+        "Always show first, last, current, and ±1 adjacent pages",
+        "Ellipsis for gaps: 1 … 4 5 6 … 20",
+        "Previous/Next buttons with disabled states at boundaries",
+        "Keyboard accessible: all controls reachable by Tab and activatable by Enter/Space"
+      ],
+      "bonus": [
+        "Page size selector (10/25/50/100 per page)",
+        "Jump-to-page input",
+        "URL search param integration (e.g. ?page=3)"
+      ],
+      "interviewer_focus": "The truncation algorithm is the interesting part — most candidates hardcode it poorly. A clean data structure approach (generate an array of page items including 'ellipsis' tokens) is the right abstraction."
+    },
+    {
+      "id": 34,
+      "title": "Skeleton loader system",
+      "difficulty": "warm-up",
+      "time_budget_minutes": 15,
+      "tags": ["component", "async"],
+      "prompt": "A composable skeleton loading system. Skeleton components match the shape of the real content they replace.",
+      "required": [
+        "Skeleton primitive: block, circle, text line",
+        "Animated shimmer effect via CSS",
+        "Composable: skeleton cards that match actual card layout",
+        "Controlled by a loading prop — swaps between skeleton and real content"
+      ],
+      "bonus": [
+        "Reduced-motion: shimmer disabled when prefers-reduced-motion",
+        "Theme-aware: shimmer adapts to dark mode",
+        "Skeleton inferred from real component shape automatically"
+      ],
+      "interviewer_focus": "prefers-reduced-motion support is the a11y signal. Composability is the design signal. A candidate who builds one generic <Skeleton> component and composes it is thinking the right way."
+    },
+    {
+      "id": 35,
+      "title": "Keyboard shortcut manager",
+      "difficulty": "medium",
+      "time_budget_minutes": 30,
+      "tags": ["keyboard", "hooks", "architecture"],
+      "prompt": "A useKeyboardShortcut hook and a ShortcutProvider context that manages shortcut registration, conflict detection, and scoping.",
+      "required": [
+        "useKeyboardShortcut(keys, handler, options) hook",
+        "Shortcuts scoped to component mount (deregister on unmount)",
+        "Conflict detection: warn in dev if two handlers claim the same shortcut",
+        "Shortcuts disabled when focus is inside a text input unless explicitly opted in"
+      ],
+      "bonus": [
+        "Shortcut sequences (e.g. g then i for Go to Inbox)",
+        "ShortcutsReference component that renders all active shortcuts",
+        "Platform-aware: show Cmd on Mac, Ctrl on Windows"
+      ],
+      "interviewer_focus": "The text-input guard is the most commonly missed requirement. The scoping model (component-level registration vs global) is the architecture question. Candidate should discuss both approaches."
+    },
+    {
+      "id": 36,
+      "title": "Rich text editor toolbar",
+      "difficulty": "hard",
+      "time_budget_minutes": 45,
+      "tags": ["text", "component", "keyboard"],
+      "prompt": "A formatting toolbar for a contenteditable region. Bold, italic, underline, link insertion — using the Selection and Range APIs directly.",
+      "required": [
+        "Bold, italic, underline via document.execCommand or Selection/Range API",
+        "Link insertion: prompt for URL, wrap selection in <a>",
+        "Toolbar buttons reflect current format state (bold button active when cursor is in bold text)",
+        "Keyboard shortcuts: Cmd+B, Cmd+I, Cmd+U, Cmd+K"
+      ],
+      "bonus": [
+        "Heading levels (H1/H2) applied to current block",
+        "Undo/redo integrated with the browser's native history",
+        "Custom serialisation: export to markdown or HTML string"
+      ],
+      "interviewer_focus": "document.execCommand is deprecated but still works — candidate should know this and mention alternatives (Selection/Range API or a library). queryCommandState() for toolbar active-state is the non-obvious requirement."
+    },
+    {
+      "id": 37,
+      "title": "Image lazy loader with blur-up",
+      "difficulty": "warm-up",
+      "time_budget_minutes": 20,
+      "tags": ["component", "async", "performance"],
+      "prompt": "An image component that loads a tiny placeholder first, then transitions to the full image with a blur-up effect on load.",
+      "required": [
+        "Tiny base64 placeholder shown immediately",
+        "Full image loaded lazily via IntersectionObserver",
+        "CSS transition from blurred placeholder to sharp full image",
+        "Error state with fallback placeholder"
+      ],
+      "bonus": [
+        "loading='lazy' as a progressive enhancement alongside IntersectionObserver",
+        "Aspect ratio box prevents layout shift during load",
+        "srcSet support for responsive images"
+      ],
+      "interviewer_focus": "Layout shift prevention (aspect ratio box) is the performance signal. Using both IntersectionObserver and loading='lazy' as progressive enhancement shows web platform depth."
+    },
+    {
+      "id": 38,
+      "title": "Chat interface with streaming responses",
+      "difficulty": "hard",
+      "time_budget_minutes": 45,
+      "tags": ["async", "text", "component"],
+      "prompt": "A chat UI where responses stream in token-by-token (simulated). New messages auto-scroll to bottom unless the user has scrolled up.",
+      "required": [
+        "Streaming simulation: tokens appended every 50ms",
+        "Auto-scroll to bottom while streaming; pause auto-scroll if user scrolls up",
+        "Resume auto-scroll when user scrolls back to bottom",
+        "Message bubbles: user right-aligned, assistant left-aligned"
+      ],
+      "bonus": [
+        "Typing indicator (three animated dots) before first token arrives",
+        "Stop generation button cancels the stream",
+        "Code blocks in responses rendered with syntax highlighting"
+      ],
+      "interviewer_focus": "The auto-scroll logic is the tricky part. isAtBottom check uses scrollTop + clientHeight vs scrollHeight with a small threshold. Candidate must not auto-scroll when user has intentionally scrolled up to read earlier messages."
+    },
+    {
+      "id": 39,
+      "title": "Colour theme picker",
+      "difficulty": "medium",
+      "time_budget_minutes": 30,
+      "tags": ["component", "keyboard"],
+      "prompt": "A colour theme switcher that applies a selected palette as CSS custom properties across the entire app.",
+      "required": [
+        "At least 4 preset themes stored as CSS variable maps",
+        "Selected theme applied to :root via JavaScript",
+        "Preference persisted to localStorage",
+        "Accessible colour swatches: keyboard navigable, aria-pressed state, sufficient contrast"
+      ],
+      "bonus": [
+        "Custom colour picker for accent colour",
+        "Transition animation when switching themes",
+        "System-preference detection (prefers-color-scheme) as default"
+      ],
+      "interviewer_focus": "The architecture question: CSS custom properties on :root vs. a data-theme attribute. Candidate should know both approaches and explain why data-theme='dark' on the root element is generally preferable to JS toggling every variable."
+    },
+    {
+      "id": 40,
+      "title": "Text statistics dashboard",
+      "difficulty": "medium",
+      "time_budget_minutes": 30,
+      "tags": ["text", "component", "async"],
+      "prompt": "A textarea with a live analytics panel showing: word count, sentence count, reading time, most frequent words, and readability score.",
+      "required": [
+        "Word count, sentence count, character count (with and without spaces)",
+        "Estimated reading time (based on 200 WPM)",
+        "Top 5 most frequent non-stopword words",
+        "All stats debounced — not computed on every keystroke"
+      ],
+      "bonus": [
+        "Flesch-Kincaid readability score with plain-English label (Easy/Medium/Hard)",
+        "Visualise word frequency as a mini bar chart",
+        "Sentence-length visualisation: short/medium/long sentences highlighted in different colours"
+      ],
+      "interviewer_focus": "The stopword filtering is a good discussion point — hardcode a small list vs. import a library. The Flesch-Kincaid formula requires syllable counting, which is non-trivial in JavaScript — ask the candidate how they'd approach it."
+    }
+  ]
+}

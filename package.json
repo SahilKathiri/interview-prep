@@ -1,0 +1,13 @@
+{
+  "name": "interview-prep",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "pnpm --filter ./skeleton run dev",
+    "setup": "node scripts/setup.mjs"
+  },
+  "dependencies": {
+    "@clack/prompts": "^0.9.0",
+    "chalk": "^5.4.1"
+  }
+}

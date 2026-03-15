@@ -1,0 +1,15 @@
+node_modules/
+package-lock.json
+dist/
+.DS_Store
+*.local
+.active-challenge
+
+# Personal config — copy from *.example.* counterparts and fill in your details
+candidate.md
+config.json
+
+# Your solutions are private
+companies/*/solutions/
+
+template/node_modules/

@@ -1,0 +1,127 @@
+.layout {
+  display: grid;
+  grid-template-rows: 44px 1fr;
+  grid-template-columns: 1fr;
+  height: 100dvh;
+  overflow: hidden;
+}
+
+.layout[data-brief-open='true'] {
+  grid-template-columns: 380px 1fr;
+}
+
+.topbar {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1rem;
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-bg);
+  gap: 1rem;
+  /* Prevent topbar from shrinking on small viewports */
+  min-width: 0;
+}
+
+.brief {
+  border-right: 1px solid var(--color-border);
+  overflow-y: auto;
+  background: var(--color-bg);
+  /* Custom scrollbar — subtle */
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-border) transparent;
+}
+
+.brief::-webkit-scrollbar {
+  width: 4px;
+}
+
+.brief::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.brief::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 2px;
+}
+
+.solution {
+  overflow: auto;
+  background: var(--color-surface);
+  padding: 2rem;
+  box-shadow: inset 1px 0 0 rgba(255, 255, 255, 0.02);
+}
+
+/*
+  Base typography for challenge solutions.
+  Tailwind's preflight resets everything to unstyled — these restore
+  sensible browser-like defaults scoped only to the solution sandbox.
+  Your solution's own styles always override these.
+*/
+.solution h1 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  line-height: 1.2;
+  color: #ededed;
+  margin: 0 0 0.75rem;
+}
+.solution h2 {
+  font-size: 1.375rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.3;
+  color: #e4e4e7;
+  margin: 1.5rem 0 0.5rem;
+}
+.solution h3 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  line-height: 1.4;
+  color: #d4d4d8;
+  margin: 1.25rem 0 0.375rem;
+}
+.solution p {
+  color: #a1a1aa;
+  line-height: 1.65;
+  margin: 0 0 0.75rem;
+}
+.solution ul {
+  list-style: disc;
+  padding-left: 1.5rem;
+  color: #a1a1aa;
+  margin: 0 0 0.75rem;
+}
+.solution ol {
+  list-style: decimal;
+  padding-left: 1.5rem;
+  color: #a1a1aa;
+  margin: 0 0 0.75rem;
+}
+.solution li {
+  margin: 0.2rem 0;
+  line-height: 1.6;
+}
+.solution a {
+  color: var(--color-accent);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.solution button {
+  cursor: pointer;
+}
+.solution input,
+.solution textarea,
+.solution select {
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+}
+.solution code {
+  font-family: var(--font-mono);
+  font-size: 0.875em;
+  background: rgba(139, 92, 246, 0.1);
+  padding: 0.1em 0.3em;
+  border-radius: 3px;
+  color: #c4b5fd;
+}

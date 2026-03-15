@@ -1,3 +1,7 @@
+---
+description: Scaffold a new company with company profile and 40 tailored challenges
+---
+
 Scaffold a new company for the interview prep system. Follow these steps exactly.
 
 ## Step 1 — Gather company information
@@ -95,48 +99,3 @@ Tell the user:
 - Files created
 - `pnpm dev` is ready to use with the new company
 - Suggest running `pnpm dev` to browse challenges
-
----
-
-## Prompt for Claude.ai (use this if scaffolding outside Claude Code)
-
-If you need to generate challenges using Claude.ai instead of this skill, use this prompt:
-
-```
-I'm preparing for a frontend engineering interview. Generate a challenges.json file for interview practice.
-
-Company: [COMPANY NAME]
-Role: [ROLE TITLE]
-Product: [WHAT THE COMPANY BUILDS]
-Technical focus: [KEY TECHNICAL AREAS]
-
-Generate 40 React/TypeScript front-end challenges with this exact JSON structure:
-
-{
-  "meta": {
-    "candidate": "[YOUR NAME]",
-    "role": "[ROLE]",
-    "company": "[COMPANY]",
-    "version": "1.0",
-    "total": 40,
-    "instructions": "Score each required criterion as PASS/FAIL and each bonus as ACHIEVED/MISSED. Overall grade: STRONG PASS / PASS / BORDERLINE / FAIL."
-  },
-  "challenges": [
-    {
-      "id": 1,
-      "title": "...",
-      "difficulty": "warm-up" | "medium" | "hard",
-      "time_budget_minutes": <15-45>,
-      "tags": [...],
-      "prompt": "...",
-      "required": ["..."],
-      "bonus": ["..."],
-      "interviewer_focus": "..."
-    }
-  ]
-}
-
-Distribution: 10 warm-up (15-20min), 20 medium (20-30min), 10 hard (30-45min).
-Tags: component, text, keyboard, async, accessibility, performance, hooks, architecture, state, animation.
-Tailor all challenges and interviewer_focus fields to [COMPANY]'s specific product domain.
-```

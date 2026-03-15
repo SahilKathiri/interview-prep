@@ -8,6 +8,7 @@ import type { IncomingMessage, ServerResponse } from 'node:http'
 
 const ROOT = path.resolve(__dirname, '..')
 const COMPANIES_DIR = path.resolve(__dirname, '../companies')
+const KNOWLEDGE_DIR = path.resolve(__dirname, '../knowledge')
 const TEMPLATE_DIR = path.resolve(__dirname, '../template')
 
 // ─── Workspace helpers ───────────────────────────────────────────────────────
@@ -40,11 +41,29 @@ interface Challenge {
   interviewer_focus: string
 }
 
+interface KnowledgeChallenge {
+  id: number
+  title: string
+  tags: string[]
+  prompt: string
+  required: string[]
+  bonus: string[]
+  demo: string
+}
+
 function loadChallenge(company: string, challengeId: number): Challenge {
   const file = path.join(COMPANIES_DIR, company, 'challenges.json')
   const { challenges } = JSON.parse(fs.readFileSync(file, 'utf-8'))
   const c = challenges.find((ch: Challenge) => ch.id === challengeId)
   if (!c) throw new Error(`Challenge ${challengeId} not found for ${company}`)
+  return c
+}
+
+function loadKnowledgeChallenge(section: string, challengeId: number): KnowledgeChallenge {
+  const file = path.join(KNOWLEDGE_DIR, section, 'challenges.json')
+  const { challenges } = JSON.parse(fs.readFileSync(file, 'utf-8'))
+  const c = challenges.find((ch: KnowledgeChallenge) => ch.id === challengeId)
+  if (!c) throw new Error(`Challenge ${challengeId} not found in knowledge/${section}`)
   return c
 }
 
@@ -60,6 +79,28 @@ export default function App() {
     <div>
       <h1>Challenge ${c.id}: ${c.title}</h1>
       {/* Your solution here */}
+    </div>
+  )
+}
+`
+}
+
+function generateKnowledgeAppStarter(c: KnowledgeChallenge) {
+  return `// ${c.title}
+// Tags: ${c.tags.join(', ')}
+//
+// TASK: ${c.prompt}
+//
+// DEMO: ${c.demo}
+
+// Implement your hook/component below, then make the Demo work.
+
+export default function App() {
+  return (
+    <div style={{ padding: '2rem', fontFamily: 'system-ui' }}>
+      <h1 style={{ marginBottom: '1rem' }}>${c.title}</h1>
+      {/* Replace this with your Demo component */}
+      <p style={{ color: '#888' }}>Implement and demo here.</p>
     </div>
   )
 }
@@ -109,6 +150,13 @@ function getAttemptCount(company: string, challengeId: number): number {
   return fs.readdirSync(dir).filter((d) => d.startsWith(prefix)).length
 }
 
+function getKnowledgeAttemptCount(section: string, challengeId: number): number {
+  const dir = path.join(KNOWLEDGE_DIR, section, 'solutions')
+  if (!fs.existsSync(dir)) return 0
+  const prefix = `challenge-${padId(challengeId)}-attempt-`
+  return fs.readdirSync(dir).filter((d) => d.startsWith(prefix)).length
+}
+
 function runInstall(cwd: string): Promise<void> {
   return new Promise((resolve, reject) => {
     const proc = spawn('pnpm', ['install'], { cwd, stdio: 'ignore', shell: true })
@@ -117,6 +165,61 @@ function runInstall(cwd: string): Promise<void> {
     )
     proc.on('error', reject)
   })
+}
+
+function generateKnowledgeChallengeMd(c: KnowledgeChallenge, section: string, attemptN: number) {
+  const req = c.required.map((r) => `- [ ] ${r}`).join('\n')
+  const bon = c.bonus.map((b) => `- [ ] ${b}`).join('\n')
+  const date = new Date().toISOString().slice(0, 10)
+  return `# ${c.title}
+
+**Section:** ${section} | **Attempt:** ${attemptN} | **Started:** ${date}
+
+## Task
+
+${c.prompt}
+
+## Demo
+
+${c.demo}
+
+## Required criteria
+
+${req}
+
+## Bonus criteria
+
+${bon}
+
+## Tags
+
+${c.tags.join(', ')}
+
+---
+
+*Tell Claude: "Brief me on ${c.title}" to start, or "Assess this" when done.*
+`
+}
+
+async function createKnowledgeWorkspace(section: string, challengeId: number): Promise<string> {
+  const challenge = loadKnowledgeChallenge(section, challengeId)
+  const attemptN = getKnowledgeAttemptCount(section, challengeId) + 1
+  const folderName = `challenge-${padId(challengeId)}-attempt-${attemptN}`
+  const folderPath = path.join(KNOWLEDGE_DIR, section, 'solutions', folderName)
+  const srcPath = path.join(folderPath, 'src')
+
+  copyDirSync(TEMPLATE_DIR, folderPath)
+  fs.writeFileSync(path.join(srcPath, 'App.tsx'), generateKnowledgeAppStarter(challenge))
+  fs.writeFileSync(path.join(folderPath, 'CHALLENGE.md'), generateKnowledgeChallengeMd(challenge, section, attemptN))
+
+  const pkgPath = path.join(folderPath, 'package.json')
+  const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf-8'))
+  pkg.name = `knowledge-${section}-${folderName}`
+  fs.writeFileSync(pkgPath, JSON.stringify(pkg, null, 2) + '\n')
+
+  await runInstall(folderPath)
+
+  return folderName
 }
 
 async function createWorkspace(company: string, challengeId: number): Promise<string> {
@@ -152,6 +255,7 @@ function watchCompanies(): Plugin {
     name: 'watch-companies',
     configureServer(server) {
       server.watcher.add(COMPANIES_DIR)
+      server.watcher.add(KNOWLEDGE_DIR)
     },
   }
 }
@@ -207,6 +311,29 @@ function workspaceApi(): Plugin {
                   folder: string
                 }
                 const filePath = path.join(COMPANIES_DIR, company, 'solutions', folder, 'src', 'App.tsx')
+                spawn(editor, [ROOT, filePath], { detached: true, stdio: 'ignore', shell: true }).unref()
+                json({ ok: true })
+
+              } else if (url === '/api/start-knowledge-challenge') {
+                const folderName = await createKnowledgeWorkspace(
+                  payload.section as string,
+                  payload.challengeId as number,
+                )
+                json({ folderName })
+
+              } else if (url === '/api/mark-knowledge-done') {
+                const { section, folder } = payload as { section: string; folder: string }
+                const markerPath = path.join(KNOWLEDGE_DIR, section, 'solutions', folder, 'done')
+                fs.writeFileSync(markerPath, '')
+                json({ ok: true })
+
+              } else if (url === '/api/open-knowledge-editor') {
+                const { editor, section, folder } = payload as {
+                  editor: 'code' | 'zed'
+                  section: string
+                  folder: string
+                }
+                const filePath = path.join(KNOWLEDGE_DIR, section, 'solutions', folder, 'src', 'App.tsx')
                 spawn(editor, [ROOT, filePath], { detached: true, stdio: 'ignore', shell: true }).unref()
                 json({ ok: true })
 

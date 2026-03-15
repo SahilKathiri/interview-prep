@@ -11,5 +11,6 @@ config.json
 
 # Your solutions are private
 companies/*/solutions/
+knowledge/*/solutions/
 
 template/node_modules/

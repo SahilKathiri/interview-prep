@@ -29,3 +29,37 @@ export interface AttemptInfo {
   challengeId: number
   attemptN: number
 }
+
+// ── Knowledge ────────────────────────────────────────────────────────────────
+
+export type KnowledgeSectionSlug = 'hooks' | 'ui'
+
+export interface KnowledgeChallenge {
+  id: number
+  title: string
+  tags: string[]
+  prompt: string
+  required: string[]
+  bonus: string[]
+  /** For hooks: the test component spec. For ui: same as prompt extension. */
+  demo: string
+}
+
+export interface KnowledgeSectionData {
+  meta: {
+    section: KnowledgeSectionSlug
+    title: string
+    description: string
+    total: number
+    source?: string
+    instructions: string
+  }
+  challenges: KnowledgeChallenge[]
+}
+
+export interface KnowledgeAttemptInfo {
+  section: KnowledgeSectionSlug
+  folder: string       // "challenge-01-attempt-1"
+  challengeId: number
+  attemptN: number
+}

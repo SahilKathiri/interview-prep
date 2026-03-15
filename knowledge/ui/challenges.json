@@ -1,0 +1,548 @@
+{
+  "meta": {
+    "section": "ui",
+    "title": "UI Patterns",
+    "description": "Build common, reusable UI components from scratch with full accessibility and keyboard support.",
+    "total": 30,
+    "instructions": "Build the component in App.tsx. The demo component is already scaffolded — make it work correctly, accessibly, and without external component libraries."
+  },
+  "challenges": [
+    {
+      "id": 1,
+      "title": "Accordion",
+      "tags": ["component", "accessibility", "animation"],
+      "prompt": "Build an Accordion component that expands and collapses sections. Accept an `items` prop of `{ id, title, content }[]` and a `defaultOpen` prop for initially open items.",
+      "required": [
+        "Each item toggles open/closed on header click",
+        "Only one item open at a time (exclusive mode)",
+        "aria-expanded on the trigger, aria-controls pointing to the panel",
+        "Panel has role='region' and aria-labelledby pointing to the trigger"
+      ],
+      "bonus": [
+        "allowMultiple prop to let several items stay open simultaneously",
+        "CSS height animation using max-height or the Web Animations API",
+        "Keyboard: Home/End jump to first/last item"
+      ],
+      "demo": "Render a 3-item FAQ accordion. Clicking each header reveals the answer. Only one answer visible at a time."
+    },
+    {
+      "id": 2,
+      "title": "Modal / Dialog",
+      "tags": ["component", "accessibility", "focus"],
+      "prompt": "Build a Modal component that traps focus, can be dismissed with Escape, and blocks interaction with background content.",
+      "required": [
+        "Focus is trapped inside the modal while open",
+        "Escape key closes the modal",
+        "aria-modal='true', role='dialog', aria-labelledby pointing to the title",
+        "Focus returns to the trigger element on close",
+        "Click on backdrop closes the modal"
+      ],
+      "bonus": [
+        "useModal hook that returns { isOpen, open, close, dialogProps }",
+        "Scroll lock on body while open",
+        "Multiple stacked modals (each with its own focus trap)"
+      ],
+      "demo": "Render a page with an 'Open modal' button. The modal has a title, body text, and a Close button."
+    },
+    {
+      "id": 3,
+      "title": "Tabs",
+      "tags": ["component", "accessibility", "keyboard"],
+      "prompt": "Build an accessible Tabs component following the ARIA tabs pattern with roving tabindex.",
+      "required": [
+        "Tabs use role='tablist', role='tab', role='tabpanel'",
+        "Arrow keys navigate between tabs (roving tabindex pattern)",
+        "Home/End jump to first/last tab",
+        "Selected tab has aria-selected='true', panel has aria-labelledby"
+      ],
+      "bonus": [
+        "Automatic vs manual activation mode (arrow key vs Enter/Space)",
+        "Vertical orientation support",
+        "Animated indicator that slides between tabs"
+      ],
+      "demo": "Render a 3-tab interface (Overview, Details, Settings). Tab content is fully keyboard navigable."
+    },
+    {
+      "id": 4,
+      "title": "Combobox / Autocomplete",
+      "tags": ["component", "accessibility", "keyboard", "async"],
+      "prompt": "Build a combobox that filters a list of options as the user types, with full keyboard navigation.",
+      "required": [
+        "role='combobox' on the input, role='listbox' on the dropdown, role='option' on each item",
+        "aria-expanded, aria-activedescendant, aria-autocomplete='list'",
+        "Arrow Up/Down navigate options, Enter selects, Escape closes",
+        "Clicking an option selects it and closes"
+      ],
+      "bonus": [
+        "Async filtering with a debounced fetch",
+        "Multi-select with tag chips",
+        "Grouped options with role='group'"
+      ],
+      "demo": "Render a country selector with 20+ options. Filter as you type. Keyboard navigable."
+    },
+    {
+      "id": 5,
+      "title": "Tooltip",
+      "tags": ["component", "accessibility", "positioning"],
+      "prompt": "Build a Tooltip component that shows a label on hover and focus, positioned relative to its trigger.",
+      "required": [
+        "role='tooltip' on the tooltip element",
+        "aria-describedby on the trigger pointing to the tooltip id",
+        "Appears on hover and :focus-visible, hides on blur/mouseleave",
+        "Escape hides the tooltip",
+        "Positioned correctly using getBoundingClientRect (no CSS absolute tricks)"
+      ],
+      "bonus": [
+        "placement prop: top, bottom, left, right with automatic flip at viewport edges",
+        "Delay option (show after 300ms hover)"
+      ],
+      "demo": "Render 4 buttons with tooltips in each direction. Show tooltip on hover and keyboard focus."
+    },
+    {
+      "id": 6,
+      "title": "Popover",
+      "tags": ["component", "accessibility", "positioning"],
+      "prompt": "Build a Popover component — like a Tooltip but with interactive content, triggered by click instead of hover.",
+      "required": [
+        "Opens on trigger click, closes on outside click or Escape",
+        "Focus moves into the popover on open",
+        "aria-haspopup='dialog', aria-expanded on trigger",
+        "Positioned relative to trigger using getBoundingClientRect"
+      ],
+      "bonus": [
+        "Controlled mode (isOpen + onOpenChange props)",
+        "Arrow pointer that points to the trigger"
+      ],
+      "demo": "Render a 'Filters' button. Clicking it opens a popover with a form inside."
+    },
+    {
+      "id": 7,
+      "title": "Select / Listbox",
+      "tags": ["component", "accessibility", "keyboard"],
+      "prompt": "Build a custom Select component following the ARIA Listbox pattern (not a native <select>).",
+      "required": [
+        "role='listbox' on the dropdown, role='option' on each item",
+        "aria-selected on the selected option",
+        "Keyboard: Up/Down to navigate, Enter/Space to select, Escape to close, Home/End",
+        "Type-ahead: typing a letter jumps to the first matching option"
+      ],
+      "bonus": [
+        "Multi-select with Shift+click and Ctrl+click",
+        "Virtualized list for 1000+ options"
+      ],
+      "demo": "Render a custom priority selector (Low, Medium, High, Critical) that replaces a native select."
+    },
+    {
+      "id": 8,
+      "title": "Command Palette",
+      "tags": ["component", "keyboard", "accessibility", "performance"],
+      "prompt": "Build a command palette (like Cmd+K menus) with fuzzy search, keyboard navigation, and grouped results.",
+      "required": [
+        "Opens on Cmd+K / Ctrl+K, closes on Escape",
+        "Fuzzy-filters a list of commands as the user types",
+        "Arrow keys navigate results, Enter executes",
+        "Focus trapped inside the palette while open"
+      ],
+      "bonus": [
+        "Groups/sections with labels",
+        "Keyboard shortcut hints displayed per command",
+        "Recent commands shown when input is empty"
+      ],
+      "demo": "Pre-populate 15 commands (navigation, settings, actions). Cmd+K opens the palette. Selecting a command shows an alert."
+    },
+    {
+      "id": 9,
+      "title": "Toast / Notification",
+      "tags": ["component", "accessibility", "animation", "state"],
+      "prompt": "Build a toast notification system with a context-based API, auto-dismiss, and screen reader announcements.",
+      "required": [
+        "useToast() hook that exposes toast(message, options?) function",
+        "Toasts render in a portal at the bottom-right of the screen",
+        "aria-live='polite' region for screen reader announcements",
+        "Auto-dismiss after 4 seconds, with a dismiss button",
+        "Maximum 5 visible toasts at once"
+      ],
+      "bonus": [
+        "Variants: success, error, warning, info (different colours)",
+        "Progress bar showing time remaining",
+        "Swipe to dismiss on mobile"
+      ],
+      "demo": "Render buttons for each toast variant. Each click adds a toast. Show they stack and auto-dismiss."
+    },
+    {
+      "id": 10,
+      "title": "Drag and Drop List",
+      "tags": ["component", "accessibility", "events"],
+      "prompt": "Build a draggable list where items can be reordered by drag-and-drop. Do not use any drag-and-drop libraries.",
+      "required": [
+        "Drag items using HTML5 Drag and Drop API (draggable, onDragStart, onDragOver, onDrop)",
+        "Visual indicator showing where the item will be dropped",
+        "aria-grabbed and aria-dropeffect attributes",
+        "Keyboard reordering: Space to pick up, arrow keys to move, Space to drop"
+      ],
+      "bonus": [
+        "Touch support using pointer events",
+        "Animate reordering with CSS transforms"
+      ],
+      "demo": "Render a 5-item priority list. Drag items to reorder. Show the updated order as a numbered list below."
+    },
+    {
+      "id": 11,
+      "title": "Infinite Scroll",
+      "tags": ["component", "async", "performance"],
+      "prompt": "Build an InfiniteScroll component that loads more content when the user scrolls near the bottom.",
+      "required": [
+        "Uses IntersectionObserver on a sentinel element at the bottom",
+        "Calls onLoadMore when the sentinel is visible",
+        "Shows a loading spinner while fetching",
+        "hasMore prop prevents further loads when exhausted"
+      ],
+      "bonus": [
+        "Bidirectional scroll (load at top too)",
+        "Scroll position restoration on navigation back"
+      ],
+      "demo": "Fetch paginated users from jsonplaceholder. Show 10 at a time. Scroll to load more."
+    },
+    {
+      "id": 12,
+      "title": "Virtual List",
+      "tags": ["component", "performance"],
+      "prompt": "Build a VirtualList component that renders only visible items from a large dataset, using fixed row heights.",
+      "required": [
+        "Renders only items in the visible viewport ± 1 buffer page",
+        "Uses a container with fixed height and a spacer div for total height",
+        "Handles scroll events to update the visible window",
+        "Accepts itemHeight and items props"
+      ],
+      "bonus": [
+        "Variable row heights using a getItemHeight(index) prop",
+        "Scroll to index API"
+      ],
+      "demo": "Render a list of 10,000 items. Show only ~20 at a time. Verify DOM has fewer than 30 nodes in DevTools."
+    },
+    {
+      "id": 13,
+      "title": "Multi-step Form",
+      "tags": ["component", "state", "accessibility"],
+      "prompt": "Build a multi-step form wizard with validation, step indicators, and keyboard navigation between steps.",
+      "required": [
+        "Step indicator shows current and completed steps",
+        "Each step validates before allowing Next",
+        "Back button returns to previous step without losing data",
+        "aria-current='step' on active step indicator",
+        "Final step shows a summary before submit"
+      ],
+      "bonus": [
+        "Animate step transitions (slide left/right)",
+        "URL reflects current step (step=1, step=2, etc.)",
+        "Save progress to sessionStorage"
+      ],
+      "demo": "Build a 3-step signup form: (1) Name + Email, (2) Password, (3) Summary + Submit."
+    },
+    {
+      "id": 14,
+      "title": "Slider / Range Input",
+      "tags": ["component", "accessibility", "keyboard"],
+      "prompt": "Build a custom Slider component that replaces the native range input, with a draggable thumb.",
+      "required": [
+        "role='slider', aria-valuenow, aria-valuemin, aria-valuemax, aria-valuetext",
+        "Keyboard: Arrow keys adjust by step, Home/End jump to min/max",
+        "Draggable using pointer events (pointerdown, pointermove, pointerup)",
+        "setPointerCapture to prevent losing the drag outside the element"
+      ],
+      "bonus": [
+        "Range slider with two thumbs (min and max handles)",
+        "Marks/ticks at step intervals",
+        "Tooltip showing current value while dragging"
+      ],
+      "demo": "Render a volume slider (0–100) and a price range slider ($0–$1000). Show values below each."
+    },
+    {
+      "id": 15,
+      "title": "Color Picker",
+      "tags": ["component", "canvas", "accessibility"],
+      "prompt": "Build a color picker with a hue slider and saturation/lightness canvas picker.",
+      "required": [
+        "Canvas-based saturation/lightness gradient (drawn with getContext('2d'))",
+        "Hue slider using a separate canvas or CSS gradient",
+        "Returns selected color as hex string",
+        "Keyboard-accessible: arrow keys move the selection point"
+      ],
+      "bonus": [
+        "Input field for manual hex entry",
+        "Opacity/alpha channel slider",
+        "Eyedropper using EyeDropper API"
+      ],
+      "demo": "Render a color picker. Show a preview swatch and the selected hex value. Copy to clipboard on click."
+    },
+    {
+      "id": 16,
+      "title": "Tree View",
+      "tags": ["component", "accessibility", "keyboard", "recursion"],
+      "prompt": "Build a tree view component for hierarchical data with expand/collapse and keyboard navigation.",
+      "required": [
+        "role='tree', role='treeitem', aria-expanded on expandable items",
+        "Arrow Right expands; Arrow Left collapses or moves to parent",
+        "Up/Down navigate between visible items",
+        "Home/End jump to first/last visible item"
+      ],
+      "bonus": [
+        "Multi-select with checkboxes and indeterminate state for partial selection",
+        "Lazy-load children on expand"
+      ],
+      "demo": "Render a file system tree (3 levels deep). Expand/collapse folders. Show file/folder icons."
+    },
+    {
+      "id": 17,
+      "title": "Data Table with Sorting",
+      "tags": ["component", "accessibility", "state"],
+      "prompt": "Build a sortable data table with column headers that toggle asc/desc sort order.",
+      "required": [
+        "Sortable columns use aria-sort='ascending' | 'descending' | 'none'",
+        "Clicking a header sorts by that column; clicking again reverses order",
+        "role='columnheader' on th, role='rowheader' on first td",
+        "Shows a sort direction indicator (↑/↓)"
+      ],
+      "bonus": [
+        "Multi-column sort with Shift+click",
+        "Filterable columns",
+        "Sticky header"
+      ],
+      "demo": "Render a users table (name, email, age, city) with 20 rows. Sort by any column."
+    },
+    {
+      "id": 18,
+      "title": "Pagination",
+      "tags": ["component", "accessibility", "state"],
+      "prompt": "Build a Pagination component with page numbers, prev/next, and first/last navigation.",
+      "required": [
+        "nav element with aria-label='Pagination'",
+        "aria-current='page' on the active page button",
+        "Prev/Next disabled at first/last page",
+        "Ellipsis (...) for large page counts, always showing first and last"
+      ],
+      "bonus": [
+        "Configurable siblings count (pages shown around current)",
+        "Jump to page input",
+        "Page size selector"
+      ],
+      "demo": "Pair with the sortable table. Add pagination at 10 rows per page with full navigation."
+    },
+    {
+      "id": 19,
+      "title": "Date Picker",
+      "tags": ["component", "accessibility", "keyboard"],
+      "prompt": "Build a date picker with a calendar grid, month navigation, and keyboard support.",
+      "required": [
+        "role='grid' calendar, role='gridcell' on each day",
+        "Arrow keys navigate the grid; Enter selects a date",
+        "Prev/Next month navigation buttons",
+        "aria-label on the current month/year display",
+        "Selected date reflected in a controlled input"
+      ],
+      "bonus": [
+        "Date range selection (start/end)",
+        "Min/max date props",
+        "Week number column"
+      ],
+      "demo": "Render a date picker input. Clicking opens the calendar. Selecting a date closes it and fills the input (YYYY-MM-DD)."
+    },
+    {
+      "id": 20,
+      "title": "Rich Text Editor (Basic)",
+      "tags": ["component", "contenteditable", "accessibility", "text"],
+      "prompt": "Build a basic rich text editor using contenteditable with bold, italic, underline, and link support.",
+      "required": [
+        "contenteditable div with role='textbox' and aria-multiline='true'",
+        "Toolbar buttons use document.execCommand or Selection API + Range for formatting",
+        "Cmd/Ctrl+B for bold, Cmd/Ctrl+I for italic, Cmd/Ctrl+U for underline",
+        "Link insertion via a prompt or inline input"
+      ],
+      "bonus": [
+        "Undo/Redo via history stack (not browser native)",
+        "Output raw HTML or a serialized format",
+        "Placeholder text when empty"
+      ],
+      "demo": "Render a full-width editor with a formatting toolbar. Type text, select it, and apply bold/italic/underline."
+    },
+    {
+      "id": 21,
+      "title": "Resizable Panels",
+      "tags": ["component", "events", "performance"],
+      "prompt": "Build a resizable split panel layout with a draggable divider between two panes.",
+      "required": [
+        "Uses pointer events (pointerdown, pointermove, pointerup) with setPointerCapture",
+        "Divider constrains each pane to a min/max percentage",
+        "Works horizontally and vertically (direction prop)",
+        "aria-orientation and aria-valuenow on the separator"
+      ],
+      "bonus": [
+        "Collapse a pane on double-click of the divider",
+        "Animate to a given split ratio via a CSS transition"
+      ],
+      "demo": "Render a code editor layout: file tree (left, resizable) and editor (right). Drag the divider."
+    },
+    {
+      "id": 22,
+      "title": "Masonry Layout",
+      "tags": ["component", "layout", "performance"],
+      "prompt": "Build a masonry grid layout (like Pinterest) in pure CSS or JS, where items fill columns greedily.",
+      "required": [
+        "Items distributed across N columns with minimum height impact",
+        "Responsive: column count changes with container width",
+        "No layout thrashing: batches reads and writes",
+        "Items maintain DOM order for keyboard/screen reader navigation"
+      ],
+      "bonus": [
+        "CSS-only approach using column-count",
+        "JS approach using ResizeObserver and column height tracking",
+        "Animate new items in"
+      ],
+      "demo": "Render 20 cards with varying heights (random 100–300px). Show in a responsive 3-column masonry layout."
+    },
+    {
+      "id": 23,
+      "title": "Skeleton Screen",
+      "tags": ["component", "performance", "accessibility"],
+      "prompt": "Build a Skeleton loading component that mimics the shape of content while it loads.",
+      "required": [
+        "Renders grey placeholder shapes (lines, circles, rectangles)",
+        "aria-busy='true' on the container while loading",
+        "aria-label='Loading content' or aria-live region for screen readers",
+        "Shimmer animation using CSS gradient animation"
+      ],
+      "bonus": [
+        "Composable: <Skeleton.Text lines={3} />, <Skeleton.Circle />, <Skeleton.Image />",
+        "Respect prefers-reduced-motion (disable shimmer)"
+      ],
+      "demo": "Build a card skeleton that matches a user profile card. Transition from skeleton to real content after 2 seconds."
+    },
+    {
+      "id": 24,
+      "title": "Stepper / Progress Steps",
+      "tags": ["component", "accessibility", "state"],
+      "prompt": "Build a horizontal step progress indicator showing completed, active, and upcoming steps.",
+      "required": [
+        "Each step shows an index, label, and status (complete/active/upcoming)",
+        "Connecting lines between steps reflect progress",
+        "aria-current='step' on the active step",
+        "Completed steps have a checkmark and different visual treatment"
+      ],
+      "bonus": [
+        "Clickable steps (navigate to any completed step)",
+        "Vertical layout option",
+        "Animated progress line"
+      ],
+      "demo": "Render a 4-step checkout stepper. Pair with buttons that advance and retreat through steps."
+    },
+    {
+      "id": 25,
+      "title": "Floating Action Button Menu",
+      "tags": ["component", "animation", "accessibility"],
+      "prompt": "Build a FAB (Floating Action Button) that expands into a radial or vertical menu of actions.",
+      "required": [
+        "Main button toggles the menu open/closed",
+        "Sub-buttons animate in (staggered) and out",
+        "aria-expanded on the main button",
+        "Each sub-button has an aria-label",
+        "Escape closes the menu"
+      ],
+      "bonus": [
+        "Radial/fan layout option vs vertical stack",
+        "Labels that appear on hover of sub-buttons"
+      ],
+      "demo": "Render a FAB in the bottom-right corner with 3 actions: Share, Edit, Delete. Clicking shows an alert."
+    },
+    {
+      "id": 26,
+      "title": "Sticky Table Header",
+      "tags": ["component", "performance", "layout"],
+      "prompt": "Build a scrollable table with a sticky header that remains visible as the user scrolls the body rows.",
+      "required": [
+        "Table header stays fixed at the top during vertical scroll",
+        "Column widths in sticky header match body columns (no layout shift)",
+        "Works with a fixed-height scrollable container",
+        "Does not use position: sticky (implement with a mirrored header technique or position:sticky with overflow handling)"
+      ],
+      "bonus": [
+        "Sticky first column for horizontal scroll",
+        "Intersection-based shadow under the stuck header"
+      ],
+      "demo": "Render a 50-row, 6-column table inside a 400px container. Header stays visible on scroll."
+    },
+    {
+      "id": 27,
+      "title": "Searchable Dropdown with Groups",
+      "tags": ["component", "accessibility", "keyboard"],
+      "prompt": "Build a dropdown with grouped options and a search box that filters across all groups.",
+      "required": [
+        "Groups use role='group' with aria-label",
+        "Search input filters options across groups (case-insensitive)",
+        "Empty state when no options match",
+        "Arrow keys navigate across group boundaries",
+        "Selected value shown in the trigger"
+      ],
+      "bonus": [
+        "Highlight matching text in option labels",
+        "Create new option if no match ('Add X')"
+      ],
+      "demo": "Render a country selector grouped by continent (Europe, Americas, Asia, etc.)."
+    },
+    {
+      "id": 28,
+      "title": "Number Input with Spin Buttons",
+      "tags": ["component", "accessibility", "keyboard"],
+      "prompt": "Build an accessible number input with increment/decrement spin buttons following the ARIA spinbutton pattern.",
+      "required": [
+        "role='spinbutton', aria-valuenow, aria-valuemin, aria-valuemax, aria-valuetext",
+        "Up/Down arrow keys increment/decrement",
+        "Page Up/Down jump by larger step",
+        "Home/End jump to min/max",
+        "Input accepts typed values and clamps on blur"
+      ],
+      "bonus": [
+        "Long-press on spin buttons for continuous increment",
+        "Format display value (e.g. currency, percentage)"
+      ],
+      "demo": "Render a quantity selector (1–99) and a temperature input (-50 to 150°C). Show values update live."
+    },
+    {
+      "id": 29,
+      "title": "Image Carousel",
+      "tags": ["component", "accessibility", "animation", "keyboard"],
+      "prompt": "Build an image carousel following the ARIA carousel / live region pattern.",
+      "required": [
+        "Prev/Next buttons navigate slides",
+        "Dot indicators show current slide and total",
+        "aria-label on the carousel, aria-roledescription='carousel' on the container",
+        "Each slide has aria-roledescription='slide' and aria-label='N of M'",
+        "Autoplay with pause on hover/focus"
+      ],
+      "bonus": [
+        "Touch/swipe support using pointer events",
+        "CSS transform-based slide animation",
+        "Pause button for autoplay"
+      ],
+      "demo": "Render a 5-image carousel using placeholder images. Show prev/next, dots, and autoplay every 3 seconds."
+    },
+    {
+      "id": 30,
+      "title": "Animated Counter",
+      "tags": ["component", "animation", "performance"],
+      "prompt": "Build an AnimatedCounter component that smoothly animates a number from its previous value to a new value.",
+      "required": [
+        "Uses requestAnimationFrame for smooth interpolation",
+        "Easing function (ease-out or spring-like)",
+        "Respects prefers-reduced-motion: jumps to final value instantly",
+        "Configurable duration prop",
+        "Formats large numbers (e.g. 1,000,000)"
+      ],
+      "bonus": [
+        "Custom easing function prop",
+        "Prefix/suffix props (e.g. '$' or '%')",
+        "Count up and count down"
+      ],
+      "demo": "Render a dashboard with 4 stat cards (users, revenue, orders, conversion). Click 'Update stats' to animate to new values."
+    }
+  ]
+}

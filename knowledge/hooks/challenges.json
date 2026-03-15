@@ -1,0 +1,815 @@
+{
+  "meta": {
+    "section": "hooks",
+    "title": "React Hooks",
+    "description": "Implement each hook from scratch, then verify it with the demo component.",
+    "total": 50,
+    "source": "https://usehooks.com",
+    "instructions": "Implement the hook in the same file as App.tsx. The demo component is already scaffolded — make it work."
+  },
+  "challenges": [
+    {
+      "id": 1,
+      "title": "useToggle",
+      "tags": ["state"],
+      "prompt": "Implement a `useToggle(initialValue?: boolean)` hook that returns `[value, toggle]`. `toggle` should accept an optional explicit boolean — if passed, set to that value; otherwise flip.",
+      "required": [
+        "Returns [value: boolean, toggle: (next?: boolean) => void]",
+        "Calling toggle() with no argument flips the value",
+        "Calling toggle(true) or toggle(false) sets explicitly",
+        "Initial value defaults to false"
+      ],
+      "bonus": [
+        "TypeScript generic so it can toggle any two values (e.g. 'light' | 'dark')",
+        "reset() function as third return value"
+      ],
+      "demo": "Render a button that shows 'ON' or 'OFF' and toggles on click. Add a second button that forces it OFF."
+    },
+    {
+      "id": 2,
+      "title": "useCounter",
+      "tags": ["state"],
+      "prompt": "Implement `useCounter(initialValue?: number, options?: { min?: number; max?: number; step?: number })` that returns `{ count, increment, decrement, reset, set }`.",
+      "required": [
+        "increment and decrement respect min/max bounds",
+        "reset returns to initial value",
+        "set clamps to min/max",
+        "step defaults to 1"
+      ],
+      "bonus": [
+        "incrementBy(n) and decrementBy(n) helpers",
+        "isMin and isMax booleans in the return value"
+      ],
+      "demo": "Render a counter display with +/- buttons, a Reset button, and min=0 / max=10 bounds. Show disabled state at limits."
+    },
+    {
+      "id": 3,
+      "title": "usePrevious",
+      "tags": ["state", "refs"],
+      "prompt": "Implement `usePrevious<T>(value: T): T | undefined` that returns the value from the previous render.",
+      "required": [
+        "Returns undefined on the first render",
+        "Returns the value before the most recent change",
+        "Works with any type (number, string, object)"
+      ],
+      "bonus": [
+        "usePreviousDistinct — only updates when the value actually changes (deep or shallow compare)"
+      ],
+      "demo": "Render an input. Show 'current: X' and 'previous: Y' below it, updating live as the user types."
+    },
+    {
+      "id": 4,
+      "title": "useDebounce",
+      "tags": ["state", "performance"],
+      "prompt": "Implement `useDebounce<T>(value: T, delay: number): T` that returns the debounced version of a value, updated only after the delay has passed without changes.",
+      "required": [
+        "Returns the original value immediately on mount",
+        "Delays updating the returned value by `delay` ms after the input changes",
+        "Clears the timer on cleanup to avoid stale updates"
+      ],
+      "bonus": [
+        "leading option: fire immediately on first change, then debounce subsequent ones",
+        "maxWait option: force an update if value keeps changing beyond this duration"
+      ],
+      "demo": "Render a search input. Show 'Live: X' (instant) and 'Debounced: Y' (300ms delay). Count how many times the debounced value updated."
+    },
+    {
+      "id": 5,
+      "title": "useThrottle",
+      "tags": ["state", "performance"],
+      "prompt": "Implement `useThrottle<T>(value: T, interval: number): T` that throttles a value to update at most once per interval.",
+      "required": [
+        "Returns the value immediately on first render",
+        "Subsequent updates are throttled to at most once per interval ms",
+        "Cleans up the timer on unmount"
+      ],
+      "bonus": [
+        "trailing option: emit the last value after the interval even if no new update arrives"
+      ],
+      "demo": "Render a mouse-move tracker (mousemove on a div). Show 'Live: x,y' and 'Throttled: x,y' (200ms). Show how many times each updated."
+    },
+    {
+      "id": 6,
+      "title": "useLocalStorage",
+      "tags": ["state", "storage"],
+      "prompt": "Implement `useLocalStorage<T>(key: string, initialValue: T): [T, (value: T | ((prev: T) => T)) => void, () => void]` that syncs state with localStorage.",
+      "required": [
+        "Reads the initial value from localStorage on mount (parsing JSON)",
+        "Writes to localStorage on every state update",
+        "Returns a remove() function that deletes the key and resets to initialValue",
+        "Handles JSON parse errors gracefully (falls back to initialValue)"
+      ],
+      "bonus": [
+        "Syncs across tabs via the 'storage' event",
+        "Accepts a custom serializer/deserializer pair"
+      ],
+      "demo": "Render a text input whose value persists across page refreshes. Show a 'Clear' button. Open two tabs to verify sync."
+    },
+    {
+      "id": 7,
+      "title": "useSessionStorage",
+      "tags": ["state", "storage"],
+      "prompt": "Implement `useSessionStorage<T>(key: string, initialValue: T)` — identical to useLocalStorage but backed by sessionStorage.",
+      "required": [
+        "Reads from sessionStorage on mount",
+        "Writes on state update",
+        "Falls back to initialValue on parse error",
+        "Returns [value, setValue, remove]"
+      ],
+      "bonus": [
+        "Share implementation with useLocalStorage via a useStorage(storage, key, initial) abstraction"
+      ],
+      "demo": "Same as useLocalStorage demo but note that clearing the session (closing the tab) resets it."
+    },
+    {
+      "id": 8,
+      "title": "useEventListener",
+      "tags": ["effects", "refs"],
+      "prompt": "Implement `useEventListener<K extends keyof WindowEventMap>(eventName: K, handler: (event: WindowEventMap[K]) => void, element?: RefObject<Element | null> | Window | null, options?: AddEventListenerOptions)` that attaches and cleans up event listeners.",
+      "required": [
+        "Defaults to window if no element ref is passed",
+        "Attaches listener on mount, removes on unmount",
+        "Re-attaches if eventName or element changes",
+        "Uses a ref for the handler so it's always current without re-subscribing"
+      ],
+      "bonus": [
+        "Overload that accepts document or custom EventTarget",
+        "Passive option for scroll/touch events"
+      ],
+      "demo": "Track keydown events globally and show the last pressed key. Also track clicks on a specific box element."
+    },
+    {
+      "id": 9,
+      "title": "useKeyPress",
+      "tags": ["effects", "keyboard"],
+      "prompt": "Implement `useKeyPress(targetKey: string): boolean` that returns true while the specified key is held down.",
+      "required": [
+        "Returns true on keydown, false on keyup",
+        "Resets to false when the component unmounts",
+        "Matches against event.key"
+      ],
+      "bonus": [
+        "Accept an array of keys, return true if any is pressed",
+        "Accept modifier options: { ctrl, shift, alt }"
+      ],
+      "demo": "Render a display that shows which of the arrow keys are currently held. Each key lights up independently."
+    },
+    {
+      "id": 10,
+      "title": "useHover",
+      "tags": ["refs", "effects"],
+      "prompt": "Implement `useHover<T extends Element>(): [RefObject<T>, boolean]` that returns a ref to attach to an element and a boolean indicating hover state.",
+      "required": [
+        "Returns [ref, isHovered]",
+        "isHovered is true between mouseenter and mouseleave",
+        "Cleans up listeners on unmount"
+      ],
+      "bonus": [
+        "Delay option: hover must persist for N ms before isHovered becomes true"
+      ],
+      "demo": "Render a card that changes background when hovered. Show 'hovered' / 'not hovered' text below."
+    },
+    {
+      "id": 11,
+      "title": "useClickAway",
+      "tags": ["refs", "effects"],
+      "prompt": "Implement `useClickAway<T extends Element>(handler: (event: MouseEvent | TouchEvent) => void): RefObject<T>` that calls handler when a click occurs outside the referenced element.",
+      "required": [
+        "Fires handler on mousedown outside the ref element",
+        "Also handles touchstart for mobile",
+        "Does not fire if the ref element itself is clicked",
+        "Cleans up listeners on unmount"
+      ],
+      "bonus": [
+        "Accept multiple refs",
+        "Option to disable the listener"
+      ],
+      "demo": "Render a dropdown that closes when you click outside it. The dropdown opens on button click."
+    },
+    {
+      "id": 12,
+      "title": "useMediaQuery",
+      "tags": ["effects", "responsive"],
+      "prompt": "Implement `useMediaQuery(query: string): boolean` that returns whether a CSS media query currently matches.",
+      "required": [
+        "Returns true/false based on the current match",
+        "Updates reactively when the viewport changes",
+        "Cleans up the listener on unmount or query change"
+      ],
+      "bonus": [
+        "SSR-safe: return false (or a provided initialValue) during server-side rendering"
+      ],
+      "demo": "Render different layouts for mobile (<768px) and desktop. Show the current query result as text."
+    },
+    {
+      "id": 13,
+      "title": "useIntersectionObserver",
+      "tags": ["refs", "effects", "performance"],
+      "prompt": "Implement `useIntersectionObserver(options?: IntersectionObserverInit): [RefObject<Element>, IntersectionObserverEntry | null]` that tracks element visibility.",
+      "required": [
+        "Returns [ref, entry] — attach ref to an element to observe it",
+        "entry is null until the first intersection event",
+        "Disconnects the observer on unmount",
+        "Passes options (threshold, root, rootMargin) to IntersectionObserver"
+      ],
+      "bonus": [
+        "Once option: disconnect after first intersection",
+        "freezeOnceVisible: stop updating after element first becomes visible"
+      ],
+      "demo": "Render a long scrollable list. The last item has the ref attached. Show 'Last item visible: yes/no' in a fixed header."
+    },
+    {
+      "id": 14,
+      "title": "useInterval",
+      "tags": ["effects", "timers"],
+      "prompt": "Implement `useInterval(callback: () => void, delay: number | null)` that runs a callback on a repeating interval. Passing null pauses it.",
+      "required": [
+        "Starts the interval on mount",
+        "Pauses when delay is null",
+        "Restarts if delay changes",
+        "Always uses the latest callback without restarting the interval"
+      ],
+      "bonus": [
+        "Return a stop/start/reset API"
+      ],
+      "demo": "Render a live clock (HH:MM:SS). Add Pause/Resume buttons that pass null or a delay."
+    },
+    {
+      "id": 15,
+      "title": "useIntervalWhen",
+      "tags": ["effects", "timers"],
+      "prompt": "Implement `useIntervalWhen(callback: () => void, options: { ms: number; when: boolean; startImmediately?: boolean })` — like useInterval but controlled by a boolean.",
+      "required": [
+        "Only runs the interval while `when` is true",
+        "startImmediately fires the callback once before the first interval tick when when becomes true",
+        "Cleans up on unmount"
+      ],
+      "bonus": [
+        "Expose the count of how many times the callback has fired"
+      ],
+      "demo": "Render an auto-incrementing counter that only ticks while a 'Running' toggle is on."
+    },
+    {
+      "id": 16,
+      "title": "useTimeout",
+      "tags": ["effects", "timers"],
+      "prompt": "Implement `useTimeout(callback: () => void, delay: number | null): { reset: () => void; clear: () => void }` that fires a callback once after a delay.",
+      "required": [
+        "Fires callback once after delay ms",
+        "reset() restarts the timer",
+        "clear() cancels the timer",
+        "Passing null cancels immediately",
+        "Always uses the latest callback"
+      ],
+      "bonus": [
+        "Return isExpired: boolean"
+      ],
+      "demo": "Render a 'Self-destructing message' that disappears after 5 seconds. Add Reset and Cancel buttons."
+    },
+    {
+      "id": 17,
+      "title": "useCountdown",
+      "tags": ["state", "timers"],
+      "prompt": "Implement `useCountdown(targetDate: Date | number): [number, { start: () => void; stop: () => void; reset: () => void }]` that returns seconds remaining and controls.",
+      "required": [
+        "Returns seconds remaining (0 when expired)",
+        "Updates every second",
+        "stop() pauses, start() resumes, reset() restores to original target",
+        "Stops automatically at 0"
+      ],
+      "bonus": [
+        "Return { days, hours, minutes, seconds } object instead of raw seconds",
+        "onComplete callback option"
+      ],
+      "demo": "Render a countdown timer to a configurable future date. Show days/hours/minutes/seconds. Add Start/Stop/Reset buttons."
+    },
+    {
+      "id": 18,
+      "title": "useRandomInterval",
+      "tags": ["effects", "timers"],
+      "prompt": "Implement `useRandomInterval(callback: () => void, minDelay: number, maxDelay: number)` that fires a callback at random intervals between min and max ms.",
+      "required": [
+        "Each interval picks a new random delay between minDelay and maxDelay",
+        "Cleans up on unmount",
+        "Always uses latest callback"
+      ],
+      "bonus": [
+        "Return { stop, start } controls",
+        "active option to pause"
+      ],
+      "demo": "Render confetti dots that appear at random positions at random intervals (200–800ms)."
+    },
+    {
+      "id": 19,
+      "title": "useWindowSize",
+      "tags": ["effects", "responsive"],
+      "prompt": "Implement `useWindowSize(): { width: number; height: number }` that returns the current window dimensions and updates on resize.",
+      "required": [
+        "Returns { width, height } from window.innerWidth / innerHeight",
+        "Updates on window resize",
+        "Debounces or throttles the resize handler",
+        "Cleans up the listener on unmount"
+      ],
+      "bonus": [
+        "SSR-safe defaults (0 or undefined when window is not available)"
+      ],
+      "demo": "Render a live display of window width × height. Resize the browser to verify it updates."
+    },
+    {
+      "id": 20,
+      "title": "useWindowScroll",
+      "tags": ["effects"],
+      "prompt": "Implement `useWindowScroll(): [{ x: number; y: number }, (pos: { x: number; y: number }) => void]` that returns scroll position and a scroll-to function.",
+      "required": [
+        "Returns current window.scrollX and scrollY",
+        "Updates on scroll",
+        "The setter calls window.scrollTo with the given coordinates",
+        "Cleans up scroll listener on unmount"
+      ],
+      "bonus": [
+        "smooth option that uses behavior: 'smooth' in scrollTo"
+      ],
+      "demo": "Render a long page (>2000px). Show a fixed 'scroll: x,y' indicator. Add a 'Back to top' button."
+    },
+    {
+      "id": 21,
+      "title": "useDocumentTitle",
+      "tags": ["effects"],
+      "prompt": "Implement `useDocumentTitle(title: string, options?: { restoreOnUnmount?: boolean })` that sets document.title.",
+      "required": [
+        "Sets document.title to the provided string",
+        "Updates when the title prop changes",
+        "With restoreOnUnmount: true, restores the previous title on unmount"
+      ],
+      "bonus": [
+        "Format option: (title: string) => string to add a suffix like ' | My App'"
+      ],
+      "demo": "Render a multi-step form. Each step sets a different document title. Show the title in a status bar on the page too."
+    },
+    {
+      "id": 22,
+      "title": "useFavicon",
+      "tags": ["effects"],
+      "prompt": "Implement `useFavicon(url: string)` that dynamically updates the page favicon.",
+      "required": [
+        "Creates or updates the <link rel='icon'> element in the document head",
+        "Updates when the url prop changes",
+        "Does not create duplicate link elements"
+      ],
+      "bonus": [
+        "Support emoji favicon: accept a string emoji and render it to a canvas"
+      ],
+      "demo": "Render buttons for different favicon URLs (or emoji). Click each to change the favicon."
+    },
+    {
+      "id": 23,
+      "title": "useCopyToClipboard",
+      "tags": ["async", "browser"],
+      "prompt": "Implement `useCopyToClipboard(): [{ value: string | null; error: Error | null }, (text: string) => Promise<void>]` using the Clipboard API.",
+      "required": [
+        "Uses navigator.clipboard.writeText",
+        "Returns the last copied value and any error",
+        "Handles browsers that don't support the Clipboard API gracefully"
+      ],
+      "bonus": [
+        "Auto-reset state after N ms",
+        "Fallback using document.execCommand for older browsers"
+      ],
+      "demo": "Render a list of code snippets. Each has a 'Copy' button that shows a '✓ Copied!' checkmark for 2 seconds."
+    },
+    {
+      "id": 24,
+      "title": "useGeolocation",
+      "tags": ["async", "browser"],
+      "prompt": "Implement `useGeolocation(options?: PositionOptions): { loading: boolean; latitude: number | null; longitude: number | null; accuracy: number | null; error: GeolocationPositionError | null }` that requests and tracks the device's location.",
+      "required": [
+        "Returns loading: true while waiting for first position",
+        "Populates latitude, longitude, accuracy from GeolocationPosition",
+        "Populates error if permission denied or unavailable",
+        "Calls watchPosition to track movement",
+        "Clears the watch on unmount"
+      ],
+      "bonus": [
+        "Return altitude, speed, heading from the position coords"
+      ],
+      "demo": "Render a geolocation card showing coordinates (or error). Add a 'Request Location' button that triggers on demand."
+    },
+    {
+      "id": 25,
+      "title": "useBattery",
+      "tags": ["async", "browser"],
+      "prompt": "Implement `useBattery(): { supported: boolean; loading: boolean; level: number | null; charging: boolean | null; chargingTime: number | null; dischargingTime: number | null }` using the Battery Status API.",
+      "required": [
+        "Checks navigator.getBattery support",
+        "Returns loading: true until the battery info resolves",
+        "Subscribes to levelchange, chargingchange events",
+        "Unsubscribes on unmount"
+      ],
+      "bonus": [
+        "Show a visual battery indicator bar"
+      ],
+      "demo": "Render a battery status card. Show level as a percentage and a charging indicator."
+    },
+    {
+      "id": 26,
+      "title": "useNetworkState",
+      "tags": ["effects", "browser"],
+      "prompt": "Implement `useNetworkState(): { online: boolean; downlink?: number; effectiveType?: string; rtt?: number; saveData?: boolean }` using the Network Information API.",
+      "required": [
+        "Returns online from navigator.onLine",
+        "Subscribes to online/offline events",
+        "Reads connection info from navigator.connection if available",
+        "Cleans up on unmount"
+      ],
+      "bonus": [
+        "Return type: '4g' | '3g' | '2g' | 'slow-2g' | null"
+      ],
+      "demo": "Render a network status badge (green/red for online/offline). Toggle airplane mode to test."
+    },
+    {
+      "id": 27,
+      "title": "useVisibilityChange",
+      "tags": ["effects", "browser"],
+      "prompt": "Implement `useVisibilityChange(): boolean` that returns true when the page is visible and false when hidden.",
+      "required": [
+        "Uses the Page Visibility API (document.visibilityState)",
+        "Updates on visibilitychange event",
+        "Cleans up listener on unmount"
+      ],
+      "bonus": [
+        "Track total time the page was visible vs hidden"
+      ],
+      "demo": "Render a counter that only increments while the page is visible. Switch tabs to pause it."
+    },
+    {
+      "id": 28,
+      "title": "useIdle",
+      "tags": ["effects", "browser"],
+      "prompt": "Implement `useIdle(timeout: number): boolean` that returns true after the user has been idle (no mouse/key/touch events) for the specified duration.",
+      "required": [
+        "Tracks mousemove, keydown, touchstart events to detect activity",
+        "Returns true after timeout ms of inactivity",
+        "Resets to false on any activity",
+        "Cleans up listeners on unmount"
+      ],
+      "bonus": [
+        "Accept a custom events list",
+        "Return the timestamp of last activity"
+      ],
+      "demo": "Render a status indicator: 'Active' (green) or 'Idle' (yellow) after 3 seconds of no input."
+    },
+    {
+      "id": 29,
+      "title": "usePageLeave",
+      "tags": ["effects", "browser"],
+      "prompt": "Implement `usePageLeave(onPageLeave: () => void)` that calls the callback when the user's cursor leaves the browser window.",
+      "required": [
+        "Fires onPageLeave on the mouseleave event on document",
+        "Always uses the latest callback without re-subscribing",
+        "Cleans up on unmount"
+      ],
+      "bonus": [
+        "Also fire on visibilitychange to hidden"
+      ],
+      "demo": "Render a 'Come back!' message counter that increments each time the cursor leaves the page."
+    },
+    {
+      "id": 30,
+      "title": "useLockBodyScroll",
+      "tags": ["effects", "browser"],
+      "prompt": "Implement `useLockBodyScroll()` that prevents the document body from scrolling while the component is mounted.",
+      "required": [
+        "Sets overflow: hidden on document.body on mount",
+        "Restores the previous overflow value on unmount",
+        "Works correctly if multiple components call it simultaneously"
+      ],
+      "bonus": [
+        "Accept a boolean active prop so the lock can be toggled"
+      ],
+      "demo": "Render a modal with a button. Opening the modal locks body scroll. Closing restores it."
+    },
+    {
+      "id": 31,
+      "title": "useMeasure",
+      "tags": ["refs", "effects", "performance"],
+      "prompt": "Implement `useMeasure<T extends Element>(): [RefObject<T>, { width: number; height: number; top: number; left: number }]` that measures an element's bounding box using ResizeObserver.",
+      "required": [
+        "Returns [ref, bounds]",
+        "bounds updates whenever the element resizes",
+        "Disconnects the ResizeObserver on unmount",
+        "Initial bounds are all 0 until first measurement"
+      ],
+      "bonus": [
+        "Also return x, y, right, bottom from DOMRect"
+      ],
+      "demo": "Render a resizable textarea (resize: both). Show width × height updating live as the user drags the resize handle."
+    },
+    {
+      "id": 32,
+      "title": "useMouse",
+      "tags": ["effects"],
+      "prompt": "Implement `useMouse(): { x: number; y: number; elementX: number; elementY: number; elementPositionX: number; elementPositionY: number; ref: RefObject<Element> }` that tracks global mouse position and position relative to a ref element.",
+      "required": [
+        "Tracks window-relative x, y on mousemove",
+        "elementX, elementY are mouse position relative to the ref element's top-left",
+        "elementPositionX, elementPositionY are the element's position in the viewport",
+        "Cleans up the listener"
+      ],
+      "bonus": [
+        "Track whether mouse is currently inside the element (isOver)"
+      ],
+      "demo": "Render a tracking box. Show global x,y and element-relative x,y as the mouse moves inside and outside the box."
+    },
+    {
+      "id": 33,
+      "title": "useLongPress",
+      "tags": ["effects", "events"],
+      "prompt": "Implement `useLongPress(callback: (e: MouseEvent | TouchEvent) => void, options?: { delay?: number; onStart?: () => void; onFinish?: () => void; onCancel?: () => void })` that fires after a sustained press.",
+      "required": [
+        "Fires callback after delay ms of continuous mousedown/touchstart",
+        "Cancels if mouse/touch is released before delay (calls onCancel)",
+        "Works for both mouse and touch events",
+        "Cleans up timers on unmount"
+      ],
+      "bonus": [
+        "Prevent default context menu on long press"
+      ],
+      "demo": "Render a button that shows 'Tap' on click and 'Long pressed!' after a 500ms hold."
+    },
+    {
+      "id": 34,
+      "title": "useScript",
+      "tags": ["effects", "async"],
+      "prompt": "Implement `useScript(src: string): 'idle' | 'loading' | 'ready' | 'error'` that dynamically loads a script tag and tracks its status.",
+      "required": [
+        "Appends a <script> tag to document.body if not already present",
+        "Returns 'loading' while loading, 'ready' on load, 'error' on error",
+        "Does not add duplicate script tags if the same src is already present",
+        "Cleans up event listeners (but does not remove the script tag)"
+      ],
+      "bonus": [
+        "accept a boolean removeOnUnmount to delete the script on cleanup"
+      ],
+      "demo": "Load the Lodash CDN script. Show the loading status. Once 'ready', render a button that calls _.shuffle([1,2,3])."
+    },
+    {
+      "id": 35,
+      "title": "useFetch",
+      "tags": ["async", "state"],
+      "prompt": "Implement `useFetch<T>(url: string | null): { data: T | null; loading: boolean; error: Error | null }` that fetches JSON and handles loading/error states.",
+      "required": [
+        "Fetches on mount and when url changes",
+        "Does not fetch if url is null",
+        "Prevents stale responses: ignores results from outdated fetches (abortController or ignore flag)",
+        "Returns loading: true while in-flight"
+      ],
+      "bonus": [
+        "Cache results by URL (Map)",
+        "refetch() function to manually retry"
+      ],
+      "demo": "Render a user card that fetches from https://jsonplaceholder.typicode.com/users/1. Show a skeleton while loading and an error state on failure."
+    },
+    {
+      "id": 36,
+      "title": "useContinuousRetry",
+      "tags": ["async", "state"],
+      "prompt": "Implement `useContinuousRetry(callback: () => boolean, interval?: number): boolean` that keeps retrying a callback until it returns true.",
+      "required": [
+        "Calls callback on mount, then every interval ms until it returns true",
+        "Returns true once the callback succeeds, false otherwise",
+        "Clears the interval on success or unmount",
+        "Default interval is 100ms"
+      ],
+      "bonus": [
+        "maxRetries option: stop and return false after N attempts",
+        "Expose retryCount"
+      ],
+      "demo": "Simulate a resource that becomes available after 2 seconds (set a timeout, flip a ref). Show loading spinner until useContinuousRetry returns true."
+    },
+    {
+      "id": 37,
+      "title": "useHistoryState",
+      "tags": ["state"],
+      "prompt": "Implement `useHistoryState<T>(initialState: T): { state: T; set: (s: T) => void; undo: () => void; redo: () => void; canUndo: boolean; canRedo: boolean; history: T[]; pointer: number }` that adds undo/redo to any state.",
+      "required": [
+        "set() pushes a new entry onto the history stack",
+        "undo() moves the pointer back; redo() moves it forward",
+        "canUndo and canRedo reflect whether moves are possible",
+        "New set() after undo discards the redo stack"
+      ],
+      "bonus": [
+        "maxHistory option to cap stack size",
+        "clear() to reset to initial state"
+      ],
+      "demo": "Render a drawing canvas (SVG lines). Each stroke is a state entry. Show Undo/Redo buttons with disabled state."
+    },
+    {
+      "id": 38,
+      "title": "useObjectState",
+      "tags": ["state"],
+      "prompt": "Implement `useObjectState<T extends Record<string, unknown>>(initialState: T): [T, (patch: Partial<T> | ((prev: T) => Partial<T>)) => void]` that merges partial updates into an object state.",
+      "required": [
+        "Merges partial updates shallowly (like this.setState in class components)",
+        "Accepts a function updater",
+        "Does not mutate nested objects"
+      ],
+      "bonus": [
+        "reset() function to restore to initialState",
+        "TypeScript: returned setter is strongly typed to Partial<T>"
+      ],
+      "demo": "Render a user profile form (name, email, age). Each field updates independently with a single setState call."
+    },
+    {
+      "id": 39,
+      "title": "useDefault",
+      "tags": ["state"],
+      "prompt": "Implement `useDefault<T>(initialValue: T, defaultValue: T): [T, Dispatch<SetStateAction<T | null | undefined>>]` that returns defaultValue when state is null or undefined.",
+      "required": [
+        "Wraps useState",
+        "Returns defaultValue when the state is null or undefined",
+        "Returns the actual state value otherwise",
+        "Setter accepts null/undefined to trigger the default"
+      ],
+      "bonus": [
+        "Accept a custom isEmpty predicate instead of null/undefined check"
+      ],
+      "demo": "Render an input bound to useDefault('', '(empty)'). Show how setting it to null/undefined renders the default value."
+    },
+    {
+      "id": 40,
+      "title": "useList",
+      "tags": ["state"],
+      "prompt": "Implement `useList<T>(initialList: T[]): [T[], { set: (list: T[]) => void; push: (...items: T[]) => void; removeAt: (index: number) => void; insertAt: (index: number, item: T) => void; updateAt: (index: number, item: T) => void; clear: () => void }]`.",
+      "required": [
+        "push appends items",
+        "removeAt removes by index",
+        "insertAt inserts without mutation",
+        "updateAt replaces the item at an index",
+        "clear empties the list"
+      ],
+      "bonus": [
+        "filter(predicate) helper",
+        "sort(compareFn) helper"
+      ],
+      "demo": "Render a todo list. Add items with an input, remove with an X button, reorder with up/down buttons."
+    },
+    {
+      "id": 41,
+      "title": "useMap",
+      "tags": ["state"],
+      "prompt": "Implement `useMap<K, V>(initialMap?: Map<K, V> | [K, V][]): [Map<K, V>, { set: (key: K, value: V) => void; delete: (key: K) => void; clear: () => void; reset: () => void }]`.",
+      "required": [
+        "Wraps a Map in state, returning a stable actions object",
+        "set and delete create a new Map (immutable update)",
+        "reset restores the initial map",
+        "clear empties the map"
+      ],
+      "bonus": [
+        "has(key) and get(key) helpers in the actions object"
+      ],
+      "demo": "Render a key-value store editor: add entries with a key+value form, delete individual entries, show all entries in a table."
+    },
+    {
+      "id": 42,
+      "title": "useSet",
+      "tags": ["state"],
+      "prompt": "Implement `useSet<T>(initialSet?: Set<T> | T[]): [Set<T>, { add: (item: T) => void; delete: (item: T) => void; toggle: (item: T) => void; clear: () => void; reset: () => void }]`.",
+      "required": [
+        "add and delete create a new Set (immutable update)",
+        "toggle adds if not present, removes if present",
+        "reset restores the initial set",
+        "clear empties the set"
+      ],
+      "bonus": [
+        "has(item) helper"
+      ],
+      "demo": "Render a multi-select tag picker. Clicking a tag toggles selection. Show selected tags in a summary."
+    },
+    {
+      "id": 43,
+      "title": "useQueue",
+      "tags": ["state"],
+      "prompt": "Implement `useQueue<T>(initialQueue?: T[]): { queue: T[]; add: (item: T) => void; remove: () => T | undefined; clear: () => void; first: T | undefined; last: T | undefined; size: number }` — a FIFO queue.",
+      "required": [
+        "add enqueues to the end",
+        "remove dequeues from the front and returns the item",
+        "first and last are the front and back elements",
+        "size is the current queue length"
+      ],
+      "bonus": [
+        "peek() without removing",
+        "isEmpty boolean"
+      ],
+      "demo": "Render a message queue: add messages with an input, process (remove) the oldest one with a button. Show front/back labels."
+    },
+    {
+      "id": 44,
+      "title": "useIsClient",
+      "tags": ["ssr"],
+      "prompt": "Implement `useIsClient(): boolean` that returns false during SSR and true after hydration on the client.",
+      "required": [
+        "Returns false on the initial render (compatible with SSR)",
+        "Returns true after the component has mounted on the client",
+        "Uses useEffect or useState initialiser to detect client"
+      ],
+      "bonus": [
+        "useIsomorphicLayoutEffect — use useLayoutEffect on client, useEffect on server"
+      ],
+      "demo": "Render a component that shows window.innerWidth. Use useIsClient to guard against SSR crashes."
+    },
+    {
+      "id": 45,
+      "title": "useIsFirstRender",
+      "tags": ["refs"],
+      "prompt": "Implement `useIsFirstRender(): boolean` that returns true only on the first render.",
+      "required": [
+        "Returns true on the very first render",
+        "Returns false on all subsequent renders",
+        "Uses a ref (not state) to avoid triggering re-renders"
+      ],
+      "bonus": [
+        "useUpdateEffect — like useEffect but skips the first render"
+      ],
+      "demo": "Render a form that shows 'Initial render' on mount and 'Updated' on every re-render. Use the hook to differentiate."
+    },
+    {
+      "id": 46,
+      "title": "useRenderCount",
+      "tags": ["debugging"],
+      "prompt": "Implement `useRenderCount(): number` that returns how many times the component has rendered.",
+      "required": [
+        "Returns 1 on the first render, 2 on the second, etc.",
+        "Uses a ref so the counter itself doesn't cause re-renders",
+        "Works correctly in React StrictMode (double-invocation)"
+      ],
+      "bonus": [
+        "useWhyDidYouRender — log which prop or state changed to cause the re-render"
+      ],
+      "demo": "Render a component with several pieces of state. Show the render count. Add buttons that change state to trigger re-renders."
+    },
+    {
+      "id": 47,
+      "title": "useRenderInfo",
+      "tags": ["debugging"],
+      "prompt": "Implement `useRenderInfo(name?: string): { name: string; renders: number; sinceLastRender: number; timestamp: number }` that exposes debug render timing.",
+      "required": [
+        "renders: how many times the component has rendered",
+        "sinceLastRender: ms since the previous render",
+        "timestamp: Date.now() of the current render",
+        "Logs render info to console in development"
+      ],
+      "bonus": [
+        "Accept a filter so it only logs when specific values change"
+      ],
+      "demo": "Render a component that re-renders on a 1s interval. Show the render info table. Verify sinceLastRender is ~1000ms."
+    },
+    {
+      "id": 48,
+      "title": "useLogger",
+      "tags": ["debugging"],
+      "prompt": "Implement `useLogger(componentName: string, ...props: unknown[])` that logs mount, update, and unmount lifecycle events to the console.",
+      "required": [
+        "Logs '[ComponentName] mounted' with props on mount",
+        "Logs '[ComponentName] updated' with new props on each update",
+        "Logs '[ComponentName] unmounted' on cleanup",
+        "Only logs in development (import.meta.env.DEV or NODE_ENV)"
+      ],
+      "bonus": [
+        "Accept a custom logger function"
+      ],
+      "demo": "Render a component with a counter prop. Increment the counter. Observe mount, update, and unmount logs in the console."
+    },
+    {
+      "id": 49,
+      "title": "usePreferredLanguage",
+      "tags": ["effects", "browser"],
+      "prompt": "Implement `usePreferredLanguage(): string` that returns the user's preferred language from navigator.language and updates if it changes.",
+      "required": [
+        "Returns navigator.language on mount",
+        "Listens for languagechange on window",
+        "Cleans up the listener on unmount",
+        "Returns 'en' as a fallback if navigator.language is undefined"
+      ],
+      "bonus": [
+        "Return navigator.languages (full array of preferred languages)"
+      ],
+      "demo": "Render the preferred language and a greeting translated into that language (English, Spanish, French, German, Japanese)."
+    },
+    {
+      "id": 50,
+      "title": "useOrientation",
+      "tags": ["effects", "browser", "responsive"],
+      "prompt": "Implement `useOrientation(): { angle: number; type: 'landscape-primary' | 'landscape-secondary' | 'portrait-primary' | 'portrait-secondary' }` using the Screen Orientation API.",
+      "required": [
+        "Returns current screen.orientation.angle and type",
+        "Updates on the orientationchange event",
+        "Cleans up listener on unmount",
+        "Falls back to window.innerWidth > window.innerHeight check if Screen Orientation API is unavailable"
+      ],
+      "bonus": [
+        "Return a simplified isPortrait / isLandscape boolean"
+      ],
+      "demo": "Render an orientation indicator that rotates a device icon to match the current orientation. Test on a mobile device or DevTools."
+    }
+  ]
+}

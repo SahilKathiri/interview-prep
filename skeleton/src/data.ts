@@ -1,4 +1,4 @@
-import type { ChallengesData, AttemptInfo } from './types'
+import type { ChallengesData, AttemptInfo, KnowledgeSectionData, KnowledgeAttemptInfo, KnowledgeSectionSlug } from './types'
 
 // ── Globs ──────────────────────────────────────────────────────────────────
 // All paths are relative to this file (skeleton/src/data.ts)
@@ -23,6 +23,27 @@ export const doneMarkers = import.meta.glob(
   { eager: true },
 )
 
+// ── Knowledge globs ────────────────────────────────────────────────────────
+
+export const knowledgeFiles = import.meta.glob<KnowledgeSectionData>(
+  '../../knowledge/*/challenges.json',
+  { eager: true, import: 'default' },
+)
+
+export const knowledgeSolutionLoaders = import.meta.glob(
+  '../../knowledge/*/solutions/*/src/App.tsx',
+)
+
+export const knowledgeChallengeMds = import.meta.glob<string>(
+  '../../knowledge/*/solutions/*/CHALLENGE.md',
+  { query: '?raw', import: 'default', eager: true },
+)
+
+export const knowledgeDoneMarkers = import.meta.glob(
+  '../../knowledge/*/solutions/*/done',
+  { eager: true },
+)
+
 // ── Helpers ────────────────────────────────────────────────────────────────
 
 function companyFromKey(key: string): string | null {
@@ -41,7 +62,12 @@ function parseFolder(folder: string): { challengeId: number; attemptN: number } 
   return { challengeId: parseInt(m[1], 10), attemptN: parseInt(m[2], 10) }
 }
 
-// ── Public API ─────────────────────────────────────────────────────────────
+function sectionFromKey(key: string): string | null {
+  const m = key.match(/\/knowledge\/([^/]+)\//)
+  return m?.[1] ?? null
+}
+
+// ── Company public API ─────────────────────────────────────────────────────
 
 export function getCompanyNames(): string[] {
   return [...new Set(
@@ -97,4 +123,60 @@ export function getSolutionLoader(company: string, folder: string) {
     k.includes(`/companies/${company}/solutions/${folder}/src/App.tsx`),
   )
   return key ? solutionLoaders[key] : null
+}
+
+// ── Knowledge public API ───────────────────────────────────────────────────
+
+export function getKnowledgeSections(): KnowledgeSectionSlug[] {
+  return Object.keys(knowledgeFiles)
+    .map(sectionFromKey)
+    .filter((s): s is KnowledgeSectionSlug => s !== null)
+}
+
+export function getKnowledgeSectionData(section: string): KnowledgeSectionData | null {
+  const key = Object.keys(knowledgeFiles).find(k =>
+    k.includes(`/knowledge/${section}/challenges.json`),
+  )
+  return key ? knowledgeFiles[key] : null
+}
+
+export function getAllKnowledgeAttempts(): KnowledgeAttemptInfo[] {
+  return Object.keys(knowledgeSolutionLoaders).flatMap((key) => {
+    const section = sectionFromKey(key)
+    const folder = folderFromKey(key)
+    if (!section || !folder) return []
+    const parsed = parseFolder(folder)
+    if (!parsed) return []
+    return [{ section: section as KnowledgeSectionSlug, folder, ...parsed }]
+  })
+}
+
+export function getKnowledgeSectionAttempts(section: string): KnowledgeAttemptInfo[] {
+  return getAllKnowledgeAttempts().filter((a) => a.section === section)
+}
+
+export function getKnowledgeChallengeAttempts(section: string, challengeId: number): KnowledgeAttemptInfo[] {
+  return getAllKnowledgeAttempts().filter(
+    (a) => a.section === section && a.challengeId === challengeId,
+  )
+}
+
+export function getKnowledgeChallengeMd(section: string, folder: string): string | null {
+  const key = Object.keys(knowledgeChallengeMds).find((k) =>
+    k.includes(`/knowledge/${section}/solutions/${folder}/CHALLENGE.md`),
+  )
+  return key ? knowledgeChallengeMds[key] ?? null : null
+}
+
+export function isKnowledgeAttemptDone(section: string, folder: string): boolean {
+  return Object.keys(knowledgeDoneMarkers).some((k) =>
+    k.includes(`/knowledge/${section}/solutions/${folder}/done`),
+  )
+}
+
+export function getKnowledgeSolutionLoader(section: string, folder: string) {
+  const key = Object.keys(knowledgeSolutionLoaders).find((k) =>
+    k.includes(`/knowledge/${section}/solutions/${folder}/src/App.tsx`),
+  )
+  return key ? knowledgeSolutionLoaders[key] : null
 }

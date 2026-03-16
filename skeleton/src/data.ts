@@ -46,6 +46,15 @@ export const knowledgeDoneMarkers = import.meta.glob(
 
 // ── Helpers ────────────────────────────────────────────────────────────────
 
+/** Convert a challenge title to a URL/folder-safe slug. Must stay in sync with vite.config.ts. */
+function toSlug(title: string): string {
+  return title
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '')
+    .slice(0, 40)
+}
+
 function companyFromKey(key: string): string | null {
   const m = key.match(/\/companies\/([^/]+)\//)
   return m?.[1] ?? null
@@ -56,15 +65,87 @@ function folderFromKey(key: string): string | null {
   return m?.[1] ?? null
 }
 
-function parseFolder(folder: string): { challengeId: number; attemptN: number } | null {
-  const m = folder.match(/^challenge-(\d+)-attempt-(\d+)$/)
+/**
+ * New folder format: "<slug>-<attemptN>"  e.g. "use-toggle-1", "character-counter-2"
+ * The slug is derived from the challenge title so challengeId must be resolved
+ * by cross-referencing the challenges list (see getChallengeByFolder / getKnowledgeChallengeByFolder).
+ */
+function parseFolder(folder: string): { slug: string; attemptN: number } | null {
+  const m = folder.match(/^(.+)-(\d+)$/)
   if (!m) return null
-  return { challengeId: parseInt(m[1], 10), attemptN: parseInt(m[2], 10) }
+  return { slug: m[1], attemptN: parseInt(m[2], 10) }
 }
 
 function sectionFromKey(key: string): string | null {
   const m = key.match(/\/knowledge\/([^/]+)\//)
   return m?.[1] ?? null
+}
+
+// ── Shuffle ────────────────────────────────────────────────────────────────
+
+export interface ShufflePick {
+  kind: 'company'
+  company: string
+  challengeId: number
+  path: string           // navigate here, then open the modal
+}
+
+export interface KnowledgeShufflePick {
+  kind: 'knowledge'
+  section: KnowledgeSectionSlug
+  challengeId: number
+  path: string
+}
+
+export type AnyShufflePick = ShufflePick | KnowledgeShufflePick
+
+/**
+ * Pick a random unattempted challenge from all companies + knowledge sections.
+ * Falls back to any challenge (including attempted ones) if everything has been tried.
+ */
+export function getShufflePick(): AnyShufflePick | null {
+  const candidates: AnyShufflePick[] = []
+  const attempted: AnyShufflePick[] = []
+
+  // Company challenges
+  for (const company of getCompanyNames()) {
+    const data = getChallengesData(company)
+    if (!data) continue
+    for (const c of data.challenges) {
+      const hasAttempt = getAllAttempts().some(
+        (a) => a.company === company && a.challengeId === c.id,
+      )
+      const pick: ShufflePick = {
+        kind: 'company',
+        company,
+        challengeId: c.id,
+        path: `/${company}?shuffle=${c.id}`,
+      }
+      ;(hasAttempt ? attempted : candidates).push(pick)
+    }
+  }
+
+  // Knowledge challenges
+  for (const section of getKnowledgeSections()) {
+    const data = getKnowledgeSectionData(section)
+    if (!data) continue
+    for (const c of data.challenges) {
+      const hasAttempt = getAllKnowledgeAttempts().some(
+        (a) => a.section === section && a.challengeId === c.id,
+      )
+      const pick: KnowledgeShufflePick = {
+        kind: 'knowledge',
+        section,
+        challengeId: c.id,
+        path: `/knowledge/${section}?shuffle=${c.id}`,
+      }
+      ;(hasAttempt ? attempted : candidates).push(pick)
+    }
+  }
+
+  const pool = candidates.length > 0 ? candidates : attempted
+  if (pool.length === 0) return null
+  return pool[Math.floor(Math.random() * pool.length)]
 }
 
 // ── Company public API ─────────────────────────────────────────────────────
@@ -91,7 +172,11 @@ export function getAllAttempts(): AttemptInfo[] {
     if (!company || !folder) return []
     const parsed = parseFolder(folder)
     if (!parsed) return []
-    return [{ company, folder, ...parsed }]
+    // Resolve challengeId by matching slug against the company's challenges list
+    const data = getChallengesData(company)
+    const challenge = data?.challenges.find(c => toSlug(c.title) === parsed.slug)
+    if (!challenge) return []
+    return [{ company, folder, challengeId: challenge.id, attemptN: parsed.attemptN }]
   })
 }
 
@@ -103,6 +188,14 @@ export function getChallengeAttempts(company: string, challengeId: number): Atte
   return getAllAttempts().filter(
     (a) => a.company === company && a.challengeId === challengeId,
   )
+}
+
+/** Look up a Challenge by its folder name (slug-based). Returns null if not found. */
+export function getChallengeByFolder(company: string, folder: string): import('./types').Challenge | null {
+  const parsed = parseFolder(folder)
+  if (!parsed) return null
+  const data = getChallengesData(company)
+  return data?.challenges.find(c => toSlug(c.title) === parsed.slug) ?? null
 }
 
 export function getChallengeMd(company: string, folder: string): string | null {
@@ -147,7 +240,11 @@ export function getAllKnowledgeAttempts(): KnowledgeAttemptInfo[] {
     if (!section || !folder) return []
     const parsed = parseFolder(folder)
     if (!parsed) return []
-    return [{ section: section as KnowledgeSectionSlug, folder, ...parsed }]
+    // Resolve challengeId by matching slug against the section's challenges list
+    const data = getKnowledgeSectionData(section)
+    const challenge = data?.challenges.find(c => toSlug(c.title) === parsed.slug)
+    if (!challenge) return []
+    return [{ section: section as KnowledgeSectionSlug, folder, challengeId: challenge.id, attemptN: parsed.attemptN }]
   })
 }
 
@@ -159,6 +256,14 @@ export function getKnowledgeChallengeAttempts(section: string, challengeId: numb
   return getAllKnowledgeAttempts().filter(
     (a) => a.section === section && a.challengeId === challengeId,
   )
+}
+
+/** Look up a KnowledgeChallenge by its folder name (slug-based). Returns null if not found. */
+export function getKnowledgeChallengeByFolder(section: string, folder: string): import('./types').KnowledgeChallenge | null {
+  const parsed = parseFolder(folder)
+  if (!parsed) return null
+  const data = getKnowledgeSectionData(section)
+  return data?.challenges.find(c => toSlug(c.title) === parsed.slug) ?? null
 }
 
 export function getKnowledgeChallengeMd(section: string, folder: string): string | null {

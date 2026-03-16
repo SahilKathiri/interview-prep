@@ -1,7 +1,8 @@
-import { useParams, Link } from 'react-router-dom'
-import { useState, useMemo } from 'react'
-import { getChallengesData, getChallengeAttempts, isAttemptDone } from '../data'
+import { useParams, Link, useSearchParams } from 'react-router-dom'
+import { useState, useMemo, useRef, useEffect } from 'react'
+import { getChallengesData, getChallengeAttempts, getCompanyAttempts, isAttemptDone } from '../data'
 import type { Challenge, Difficulty } from '../types'
+import ChallengeBriefModal from '../components/ChallengeBriefModal'
 
 // ─── Colour maps ────────────────────────────────────────────────────────────
 
@@ -55,6 +56,56 @@ export default function CompanyPage() {
     difficulties: new Set(),
     tags: new Set(),
   })
+
+  // Preview modal state
+  const [previewChallenge, setPreviewChallenge] = useState<Challenge | null>(null)
+  const [previewStarting, setPreviewStarting] = useState(false)
+  const [previewError, setPreviewError] = useState('')
+  const previewTriggerRef = useRef<HTMLButtonElement | null>(null)
+  const previewAttempts = useMemo(
+    () => getChallengeAttempts(company, previewChallenge?.id ?? -1),
+    [company, previewChallenge?.id],
+  )
+
+  // Auto-open modal when navigated here via shuffle (?shuffle=<id>)
+  const [searchParams, setSearchParams] = useSearchParams()
+  useEffect(() => {
+    const shuffleId = searchParams.get('shuffle')
+    if (!shuffleId || !data) return
+    const challenge = data.challenges.find((c) => c.id === Number(shuffleId))
+    if (challenge) setPreviewChallenge(challenge)
+    setSearchParams({}, { replace: true })
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  function openPreview(challenge: Challenge, trigger: HTMLButtonElement) {
+    previewTriggerRef.current = trigger
+    setPreviewChallenge(challenge)
+  }
+
+  function closePreview() {
+    setPreviewChallenge(null)
+    setPreviewStarting(false)
+    setPreviewError('')
+  }
+
+  async function handleModalStart() {
+    if (!previewChallenge) return
+    setPreviewStarting(true)
+    setPreviewError('')
+    try {
+      const res = await fetch('/api/start-challenge', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ company, challengeId: previewChallenge.id }),
+      })
+      const json = await res.json() as { folderName?: string; error?: string }
+      if (!res.ok) throw new Error(json.error ?? 'Failed to create workspace')
+      window.location.href = `/${company}/${json.folderName}`
+    } catch (err: unknown) {
+      setPreviewStarting(false)
+      setPreviewError((err as Error).message)
+    }
+  }
 
   const isFiltered = filters.difficulties.size > 0 || filters.tags.size > 0
 
@@ -117,6 +168,15 @@ export default function CompanyPage() {
     setFilters({ difficulties: new Set(), tags: new Set() })
   }
 
+  function handleShuffle() {
+    if (!data) return
+    const attempted = new Set(getCompanyAttempts(company).map((a) => a.challengeId))
+    const pool = data.challenges.filter((c) => !attempted.has(c.id))
+    const source = pool.length > 0 ? pool : data.challenges
+    const pick = source[Math.floor(Math.random() * source.length)]
+    if (pick) setPreviewChallenge(pick)
+  }
+
   // Always group by difficulty (preserves sort order regardless of active filters)
   const grouped = DIFF_ORDER.map((diff) => ({
     diff,
@@ -133,11 +193,21 @@ export default function CompanyPage() {
         >
           ← Dashboard
         </Link>
-        <div className="flex items-baseline gap-4">
-          <h1 className="text-2xl font-bold text-white capitalize tracking-tight">{company}</h1>
-          <span className="text-sm text-[--color-text-muted] tabular">
-            {totalAttempted} / {data.challenges.length} attempted
-          </span>
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex items-baseline gap-4">
+            <h1 className="text-2xl font-bold text-white capitalize tracking-tight">{company}</h1>
+            <span className="text-sm text-[--color-text-muted] tabular">
+              {totalAttempted} / {data.challenges.length} attempted
+            </span>
+          </div>
+          <button
+            onClick={handleShuffle}
+            title="Pick a random unattempted challenge from this company"
+            className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-md font-mono text-violet-300 bg-violet-500/10 ring-1 ring-violet-500/20 hover:bg-violet-500/20 hover:text-violet-200 hover:ring-violet-500/40 transition-[background-color,color,box-shadow] duration-150 cursor-pointer shrink-0"
+          >
+            <span className="text-sm leading-none">⇄</span>
+            shuffle
+          </button>
         </div>
         {data.meta.role && (
           <p className="text-[--color-text-secondary] text-sm mt-1">{data.meta.role}</p>
@@ -214,6 +284,19 @@ export default function CompanyPage() {
         )}
       </div>
 
+      {/* ── Preview modal ───────────────────────────────────────────────────── */}
+      <ChallengeBriefModal
+        challenge={previewChallenge}
+        onClose={closePreview}
+        onStart={handleModalStart}
+        isStarting={previewStarting}
+        attempts={previewAttempts}
+        triggerRef={previewTriggerRef}
+      />
+      {previewError && (
+        <p className="text-[10px] text-red-400 font-mono mt-2">{previewError}</p>
+      )}
+
       {/* ── Challenge list — always grouped by difficulty ────────────────────── */}
       {filtered.length === 0 ? (
         <div className="py-16 text-center">
@@ -236,7 +319,7 @@ export default function CompanyPage() {
               </h2>
               <div className="space-y-px">
                 {challenges.map((c) => (
-                  <ChallengeRow key={c.id} challenge={c} company={company} />
+                  <ChallengeRow key={c.id} challenge={c} company={company} onPreview={openPreview} />
                 ))}
               </div>
             </section>
@@ -249,9 +332,16 @@ export default function CompanyPage() {
 
 // ─── ChallengeRow ─────────────────────────────────────────────────────────────
 
-function ChallengeRow({ challenge: c, company }: { challenge: Challenge; company: string }) {
+function ChallengeRow({
+  challenge: c,
+  company,
+  onPreview,
+}: {
+  challenge: Challenge
+  company: string
+  onPreview: (challenge: Challenge, trigger: HTMLButtonElement) => void
+}) {
   const attempts = getChallengeAttempts(company, c.id)
-  const latestAttempt = attempts[attempts.length - 1]
   const [status, setStatus] = useState<'idle' | 'loading' | 'error'>('idle')
   const [errorMsg, setErrorMsg] = useState('')
 
@@ -266,8 +356,7 @@ function ChallengeRow({ challenge: c, company }: { challenge: Challenge; company
       })
       const data = await res.json() as { folderName?: string; error?: string }
       if (!res.ok) throw new Error(data.error ?? 'Failed to create workspace')
-      const target = `/${company}/${data.folderName}`
-      window.location.href = target
+      window.location.href = `/${company}/${data.folderName}`
     } catch (err: unknown) {
       setStatus('error')
       setErrorMsg((err as Error).message)
@@ -275,34 +364,27 @@ function ChallengeRow({ challenge: c, company }: { challenge: Challenge; company
   }
 
   return (
-    <div className="relative flex items-center gap-4 px-3 py-2.5 rounded-lg hover:bg-[--color-surface] transition-colors duration-100 group">
-      {/* Stretched link to latest attempt */}
-      {latestAttempt && status === 'idle' && (
-        <Link
-          to={`/${company}/${latestAttempt.folder}`}
-          className="absolute inset-0 rounded-lg z-0"
-          aria-label={`${c.title} — open attempt ${latestAttempt.attemptN}`}
-          tabIndex={-1}
-        />
-      )}
-
+    <div className="flex items-center gap-4 px-3 py-2.5 rounded-lg hover:bg-[--color-surface] transition-colors duration-100 group">
       {/* ID */}
-      <span className="relative z-10 w-7 shrink-0 text-right font-mono text-[11px] text-[--color-text-muted] tabular select-none">
+      <span className="w-7 shrink-0 text-right font-mono text-[11px] text-[--color-text-muted] tabular select-none">
         {String(c.id).padStart(2, '0')}
       </span>
 
       {/* Diff badge */}
       <span
-        className={`relative z-10 text-[10px] px-2 py-px rounded-full font-medium shrink-0 ${DIFF_BADGE[c.difficulty]}`}
+        className={`text-[10px] px-2 py-px rounded-full font-medium shrink-0 ${DIFF_BADGE[c.difficulty]}`}
       >
         {c.difficulty}
       </span>
 
       {/* Title + tags */}
-      <div className="relative z-10 flex-1 min-w-0">
-        <span className="text-sm text-[--color-text-secondary] group-hover:text-[--color-text] transition-colors duration-100 leading-snug">
+      <div className="flex-1 min-w-0">
+        <button
+          onClick={(e) => onPreview(c, e.currentTarget)}
+          className="text-sm text-[--color-text-secondary] group-hover:text-[--color-text] hover:text-white transition-colors duration-100 leading-snug text-left cursor-pointer underline-offset-2 hover:underline decoration-[--color-border-hover]"
+        >
           {c.title}
-        </span>
+        </button>
         {c.tags.length > 0 && (
           <div className="flex gap-1 mt-1 flex-wrap">
             {c.tags.map((tag) => (

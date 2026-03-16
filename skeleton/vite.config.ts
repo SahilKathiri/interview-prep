@@ -13,8 +13,13 @@ const TEMPLATE_DIR = path.resolve(__dirname, '../template')
 
 // ─── Workspace helpers ───────────────────────────────────────────────────────
 
-function padId(id: number) {
-  return String(id).padStart(2, '0')
+/** Convert a challenge title to a slug for use in folder names. Must stay in sync with skeleton/src/data.ts. */
+function toSlug(title: string): string {
+  return title
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '')
+    .slice(0, 40)
 }
 
 function copyDirSync(src: string, dest: string) {
@@ -49,6 +54,8 @@ interface KnowledgeChallenge {
   required: string[]
   bonus: string[]
   demo: string
+  stubs?: string[]
+  demoCode?: string
 }
 
 function loadChallenge(company: string, challengeId: number): Challenge {
@@ -85,7 +92,7 @@ export default function App() {
 `
 }
 
-function generateKnowledgeAppStarter(c: KnowledgeChallenge) {
+function generateUiAppStarter(c: KnowledgeChallenge) {
   return `// ${c.title}
 // Tags: ${c.tags.join(', ')}
 //
@@ -93,14 +100,51 @@ function generateKnowledgeAppStarter(c: KnowledgeChallenge) {
 //
 // DEMO: ${c.demo}
 
-// Implement your hook/component below, then make the Demo work.
+// Build your component below, then make the Demo work.
 
 export default function App() {
   return (
     <div style={{ padding: '2rem', fontFamily: 'system-ui' }}>
       <h1 style={{ marginBottom: '1rem' }}>${c.title}</h1>
-      {/* Replace this with your Demo component */}
+      {/* Replace this with your component */}
       <p style={{ color: '#888' }}>Implement and demo here.</p>
+    </div>
+  )
+}
+`
+}
+
+function generateHooksAppStarter(c: KnowledgeChallenge) {
+  const stubs = (c.stubs ?? []).join('\n\n')
+  const demo = c.demoCode ?? `function Demo() {
+  return <p style={{ color: '#888' }}>Wire up the demo here.</p>
+}`
+
+  return `// ${c.title}
+// Tags: ${c.tags.join(', ')}
+//
+// TASK: ${c.prompt}
+//
+// DEMO: ${c.demo}
+
+import React from 'react'
+
+// ─── Implement this hook ──────────────────────────────────────────────────────
+
+${stubs}
+
+// ─── Demo (do not edit) ───────────────────────────────────────────────────────
+
+${demo}
+
+export default function App() {
+  return (
+    <div style={{ padding: '2rem', fontFamily: 'system-ui' }}>
+      <h1 style={{ marginBottom: '0.25rem' }}>${c.title}</h1>
+      <p style={{ color: '#888', fontSize: '0.875rem', marginBottom: '1.5rem' }}>
+        Implement the hook above, then verify the demo works correctly.
+      </p>
+      <Demo />
     </div>
   )
 }
@@ -143,18 +187,24 @@ ${c.tags.join(', ')}
 `
 }
 
-function getAttemptCount(company: string, challengeId: number): number {
+function getAttemptCount(company: string, challengeTitle: string): number {
   const dir = path.join(COMPANIES_DIR, company, 'solutions')
   if (!fs.existsSync(dir)) return 0
-  const prefix = `challenge-${padId(challengeId)}-attempt-`
-  return fs.readdirSync(dir).filter((d) => d.startsWith(prefix)).length
+  const slug = toSlug(challengeTitle)
+  return fs.readdirSync(dir).filter((d) => {
+    const m = d.match(/^(.+)-(\d+)$/)
+    return m?.[1] === slug
+  }).length
 }
 
-function getKnowledgeAttemptCount(section: string, challengeId: number): number {
+function getKnowledgeAttemptCount(section: string, challengeTitle: string): number {
   const dir = path.join(KNOWLEDGE_DIR, section, 'solutions')
   if (!fs.existsSync(dir)) return 0
-  const prefix = `challenge-${padId(challengeId)}-attempt-`
-  return fs.readdirSync(dir).filter((d) => d.startsWith(prefix)).length
+  const slug = toSlug(challengeTitle)
+  return fs.readdirSync(dir).filter((d) => {
+    const m = d.match(/^(.+)-(\d+)$/)
+    return m?.[1] === slug
+  }).length
 }
 
 function runInstall(cwd: string): Promise<void> {
@@ -203,13 +253,16 @@ ${c.tags.join(', ')}
 
 async function createKnowledgeWorkspace(section: string, challengeId: number): Promise<string> {
   const challenge = loadKnowledgeChallenge(section, challengeId)
-  const attemptN = getKnowledgeAttemptCount(section, challengeId) + 1
-  const folderName = `challenge-${padId(challengeId)}-attempt-${attemptN}`
+  const attemptN = getKnowledgeAttemptCount(section, challenge.title) + 1
+  const folderName = `${toSlug(challenge.title)}-${attemptN}`
   const folderPath = path.join(KNOWLEDGE_DIR, section, 'solutions', folderName)
   const srcPath = path.join(folderPath, 'src')
 
   copyDirSync(TEMPLATE_DIR, folderPath)
-  fs.writeFileSync(path.join(srcPath, 'App.tsx'), generateKnowledgeAppStarter(challenge))
+  const appContent = section === 'hooks'
+    ? generateHooksAppStarter(challenge)
+    : generateUiAppStarter(challenge)
+  fs.writeFileSync(path.join(srcPath, 'App.tsx'), appContent)
   fs.writeFileSync(path.join(folderPath, 'CHALLENGE.md'), generateKnowledgeChallengeMd(challenge, section, attemptN))
 
   const pkgPath = path.join(folderPath, 'package.json')
@@ -224,8 +277,8 @@ async function createKnowledgeWorkspace(section: string, challengeId: number): P
 
 async function createWorkspace(company: string, challengeId: number): Promise<string> {
   const challenge = loadChallenge(company, challengeId)
-  const attemptN = getAttemptCount(company, challengeId) + 1
-  const folderName = `challenge-${padId(challengeId)}-attempt-${attemptN}`
+  const attemptN = getAttemptCount(company, challenge.title) + 1
+  const folderName = `${toSlug(challenge.title)}-${attemptN}`
   const folderPath = path.join(COMPANIES_DIR, company, 'solutions', folderName)
   const srcPath = path.join(folderPath, 'src')
 
@@ -235,7 +288,7 @@ async function createWorkspace(company: string, challengeId: number): Promise<st
 
   const pkgPath = path.join(folderPath, 'package.json')
   const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf-8'))
-  pkg.name = folderName
+  pkg.name = `${company}-${folderName}`
   fs.writeFileSync(pkgPath, JSON.stringify(pkg, null, 2) + '\n')
 
   await runInstall(folderPath)

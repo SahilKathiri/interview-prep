@@ -5,7 +5,7 @@
     "description": "Implement each hook from scratch, then verify it with the demo component.",
     "total": 50,
     "source": "https://usehooks.com",
-    "instructions": "Implement the hook in the same file as App.tsx. The demo component is already scaffolded — make it work."
+    "instructions": "Implement the hook stub in App.tsx. The Demo component is already wired up — make it work."
   },
   "challenges": [
     {
@@ -23,7 +23,11 @@
         "TypeScript generic so it can toggle any two values (e.g. 'light' | 'dark')",
         "reset() function as third return value"
       ],
-      "demo": "Render a button that shows 'ON' or 'OFF' and toggles on click. Add a second button that forces it OFF."
+      "demo": "Render a button that shows 'ON' or 'OFF' and toggles on click. Add a second button that forces it OFF.",
+      "stubs": [
+        "function useToggle(initialValue: boolean = false): [boolean, (next?: boolean) => void] {\n  // TODO: implement\n  return [false, () => {}]\n}"
+      ],
+      "demoCode": "function Demo() {\n  const [isOn, toggle] = useToggle(false)\n  return (\n    <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>\n      <span style={{ fontWeight: 'bold', width: '3rem' }}>{isOn ? 'ON' : 'OFF'}</span>\n      <button onClick={() => toggle()}>Toggle</button>\n      <button onClick={() => toggle(false)}>Force OFF</button>\n      <button onClick={() => toggle(true)}>Force ON</button>\n    </div>\n  )\n}"
     },
     {
       "id": 2,
@@ -40,7 +44,11 @@
         "incrementBy(n) and decrementBy(n) helpers",
         "isMin and isMax booleans in the return value"
       ],
-      "demo": "Render a counter display with +/- buttons, a Reset button, and min=0 / max=10 bounds. Show disabled state at limits."
+      "demo": "Render a counter display with +/- buttons, a Reset button, and min=0 / max=10 bounds. Show disabled state at limits.",
+      "stubs": [
+        "function useCounter(\n  initialValue: number = 0,\n  options?: { min?: number; max?: number; step?: number }\n): { count: number; increment: () => void; decrement: () => void; reset: () => void; set: (n: number) => void } {\n  // TODO: implement\n  return { count: initialValue, increment: () => {}, decrement: () => {}, reset: () => {}, set: () => {} }\n}"
+      ],
+      "demoCode": "function Demo() {\n  const { count, increment, decrement, reset, set } = useCounter(0, { min: 0, max: 10 })\n  return (\n    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>\n      <div style={{ fontSize: '2rem', fontWeight: 'bold' }}>{count}</div>\n      <div style={{ display: 'flex', gap: '0.5rem' }}>\n        <button onClick={decrement} disabled={count <= 0}>-</button>\n        <button onClick={increment} disabled={count >= 10}>+</button>\n        <button onClick={reset}>Reset</button>\n        <button onClick={() => set(5)}>Set 5</button>\n      </div>\n      <div style={{ color: '#888', fontSize: '0.8rem' }}>min=0, max=10</div>\n    </div>\n  )\n}"
     },
     {
       "id": 3,
@@ -55,7 +63,11 @@
       "bonus": [
         "usePreviousDistinct — only updates when the value actually changes (deep or shallow compare)"
       ],
-      "demo": "Render an input. Show 'current: X' and 'previous: Y' below it, updating live as the user types."
+      "demo": "Render an input. Show 'current: X' and 'previous: Y' below it, updating live as the user types.",
+      "stubs": [
+        "function usePrevious<T>(value: T): T | undefined {\n  // TODO: implement\n  return undefined\n}"
+      ],
+      "demoCode": "function Demo() {\n  const [text, setText] = React.useState('')\n  const prev = usePrevious(text)\n  return (\n    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>\n      <input value={text} onChange={e => setText(e.target.value)} placeholder=\"Type something…\" />\n      <div>Current: <strong>{text || '(empty)'}</strong></div>\n      <div>Previous: <strong>{prev ?? '(none)'}</strong></div>\n    </div>\n  )\n}"
     },
     {
       "id": 4,
@@ -71,7 +83,11 @@
         "leading option: fire immediately on first change, then debounce subsequent ones",
         "maxWait option: force an update if value keeps changing beyond this duration"
       ],
-      "demo": "Render a search input. Show 'Live: X' (instant) and 'Debounced: Y' (300ms delay). Count how many times the debounced value updated."
+      "demo": "Render a search input. Show 'Live: X' (instant) and 'Debounced: Y' (300ms delay). Count how many times the debounced value updated.",
+      "stubs": [
+        "function useDebounce<T>(value: T, delay: number): T {\n  // TODO: implement\n  return value\n}"
+      ],
+      "demoCode": "function Demo() {\n  const [text, setText] = React.useState('')\n  const debounced = useDebounce(text, 300)\n  const count = React.useRef(0)\n  React.useEffect(() => { count.current++ }, [debounced])\n  return (\n    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>\n      <input value={text} onChange={e => setText(e.target.value)} placeholder=\"Type fast…\" />\n      <div>Live: <strong>{text}</strong></div>\n      <div>Debounced (300ms): <strong>{debounced}</strong></div>\n      <div style={{ color: '#888', fontSize: '0.8rem' }}>Debounced fired {count.current} time(s)</div>\n    </div>\n  )\n}"
     },
     {
       "id": 5,
@@ -86,7 +102,11 @@
       "bonus": [
         "trailing option: emit the last value after the interval even if no new update arrives"
       ],
-      "demo": "Render a mouse-move tracker (mousemove on a div). Show 'Live: x,y' and 'Throttled: x,y' (200ms). Show how many times each updated."
+      "demo": "Render a mouse-move tracker (mousemove on a div). Show 'Live: x,y' and 'Throttled: x,y' (200ms). Show how many times each updated.",
+      "stubs": [
+        "function useThrottle<T>(value: T, interval: number): T {\n  // TODO: implement\n  return value\n}"
+      ],
+      "demoCode": "function Demo() {\n  const [pos, setPos] = React.useState({ x: 0, y: 0 })\n  const throttled = useThrottle(pos, 200)\n  const liveCount = React.useRef(0)\n  const throttleCount = React.useRef(0)\n  liveCount.current++\n  React.useEffect(() => { throttleCount.current++ }, [throttled])\n  return (\n    <div\n      onMouseMove={e => setPos({ x: e.clientX, y: e.clientY })}\n      style={{ padding: '2rem', border: '1px solid #333', cursor: 'crosshair', userSelect: 'none' }}\n    >\n      <div>Live: {pos.x},{pos.y} ({liveCount.current} renders)</div>\n      <div>Throttled (200ms): {throttled.x},{throttled.y} ({throttleCount.current} updates)</div>\n      <div style={{ color: '#888', fontSize: '0.8rem', marginTop: '0.5rem' }}>Move mouse over this box</div>\n    </div>\n  )\n}"
     },
     {
       "id": 6,
@@ -103,7 +123,11 @@
         "Syncs across tabs via the 'storage' event",
         "Accepts a custom serializer/deserializer pair"
       ],
-      "demo": "Render a text input whose value persists across page refreshes. Show a 'Clear' button. Open two tabs to verify sync."
+      "demo": "Render a text input whose value persists across page refreshes. Show a 'Clear' button. Open two tabs to verify sync.",
+      "stubs": [
+        "function useLocalStorage<T>(key: string, initialValue: T): [T, (value: T | ((prev: T) => T)) => void, () => void] {\n  // TODO: implement\n  return [initialValue, () => {}, () => {}]\n}"
+      ],
+      "demoCode": "function Demo() {\n  const [name, setName, removeName] = useLocalStorage('demo-name', '')\n  return (\n    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>\n      <input value={name} onChange={e => setName(e.target.value)} placeholder=\"Type a name — refresh to verify it persists\" />\n      <div>Stored: <strong>{name || '(empty)'}</strong></div>\n      <button onClick={removeName}>Clear from localStorage</button>\n    </div>\n  )\n}"
     },
     {
       "id": 7,
@@ -119,13 +143,17 @@
       "bonus": [
         "Share implementation with useLocalStorage via a useStorage(storage, key, initial) abstraction"
       ],
-      "demo": "Same as useLocalStorage demo but note that clearing the session (closing the tab) resets it."
+      "demo": "Same as useLocalStorage demo but note that clearing the session (closing the tab) resets it.",
+      "stubs": [
+        "function useSessionStorage<T>(key: string, initialValue: T): [T, (value: T | ((prev: T) => T)) => void, () => void] {\n  // TODO: implement\n  return [initialValue, () => {}, () => {}]\n}"
+      ],
+      "demoCode": "function Demo() {\n  const [count, setCount, remove] = useSessionStorage('demo-count', 0)\n  return (\n    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>\n      <div style={{ fontSize: '2rem', fontWeight: 'bold' }}>{count}</div>\n      <div style={{ display: 'flex', gap: '0.5rem' }}>\n        <button onClick={() => setCount((n: number) => n + 1)}>+1</button>\n        <button onClick={remove}>Reset (clear session)</button>\n      </div>\n      <div style={{ color: '#888', fontSize: '0.8rem' }}>Closes tab to reset. Refresh keeps value.</div>\n    </div>\n  )\n}"
     },
     {
       "id": 8,
       "title": "useEventListener",
       "tags": ["effects", "refs"],
-      "prompt": "Implement `useEventListener<K extends keyof WindowEventMap>(eventName: K, handler: (event: WindowEventMap[K]) => void, element?: RefObject<Element | null> | Window | null, options?: AddEventListenerOptions)` that attaches and cleans up event listeners.",
+      "prompt": "Implement `useEventListener<K extends keyof WindowEventMap>(eventName: K, handler: (event: WindowEventMap[K]) => void, element?: React.RefObject<Element | null> | Window | null, options?: AddEventListenerOptions)` that attaches and cleans up event listeners.",
       "required": [
         "Defaults to window if no element ref is passed",
         "Attaches listener on mount, removes on unmount",
@@ -136,7 +164,11 @@
         "Overload that accepts document or custom EventTarget",
         "Passive option for scroll/touch events"
       ],
-      "demo": "Track keydown events globally and show the last pressed key. Also track clicks on a specific box element."
+      "demo": "Track keydown events globally and show the last pressed key. Also track clicks on a specific box element.",
+      "stubs": [
+        "function useEventListener<K extends keyof WindowEventMap>(\n  eventName: K,\n  handler: (event: WindowEventMap[K]) => void,\n  element?: React.RefObject<Element | null> | Window | null,\n  options?: AddEventListenerOptions\n): void {\n  // TODO: implement\n}"
+      ],
+      "demoCode": "function Demo() {\n  const [lastKey, setLastKey] = React.useState('(none)')\n  const [boxClicks, setBoxClicks] = React.useState(0)\n  const boxRef = React.useRef<HTMLDivElement>(null)\n  useEventListener('keydown', (e) => setLastKey(e.key))\n  useEventListener('click', () => setBoxClicks(n => n + 1), boxRef)\n  return (\n    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>\n      <div>Last key pressed: <strong>{lastKey}</strong></div>\n      <div\n        ref={boxRef}\n        style={{ padding: '1rem', border: '1px solid #444', cursor: 'pointer', borderRadius: 4 }}\n      >\n        Click me — clicks: <strong>{boxClicks}</strong>\n      </div>\n    </div>\n  )\n}"
     },
     {
       "id": 9,
@@ -152,13 +184,17 @@
         "Accept an array of keys, return true if any is pressed",
         "Accept modifier options: { ctrl, shift, alt }"
       ],
-      "demo": "Render a display that shows which of the arrow keys are currently held. Each key lights up independently."
+      "demo": "Render a display that shows which of the arrow keys are currently held. Each key lights up independently.",
+      "stubs": [
+        "function useKeyPress(targetKey: string): boolean {\n  // TODO: implement\n  return false\n}"
+      ],
+      "demoCode": "function Demo() {\n  const up = useKeyPress('ArrowUp')\n  const down = useKeyPress('ArrowDown')\n  const left = useKeyPress('ArrowLeft')\n  const right = useKeyPress('ArrowRight')\n  const active = (on: boolean) => ({ padding: '0.5rem 0.75rem', borderRadius: 4, background: on ? '#6d28d9' : '#222', color: on ? '#fff' : '#666', fontWeight: 'bold' as const })\n  return (\n    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.25rem' }}>\n      <div><span style={active(up)}>↑</span></div>\n      <div style={{ display: 'flex', gap: '0.25rem' }}>\n        <span style={active(left)}>←</span>\n        <span style={active(down)}>↓</span>\n        <span style={active(right)}>→</span>\n      </div>\n      <div style={{ color: '#888', fontSize: '0.8rem', marginTop: '0.5rem' }}>Hold arrow keys</div>\n    </div>\n  )\n}"
     },
     {
       "id": 10,
       "title": "useHover",
       "tags": ["refs", "effects"],
-      "prompt": "Implement `useHover<T extends Element>(): [RefObject<T>, boolean]` that returns a ref to attach to an element and a boolean indicating hover state.",
+      "prompt": "Implement `useHover<T extends Element>(): [React.RefObject<T>, boolean]` that returns a ref to attach to an element and a boolean indicating hover state.",
       "required": [
         "Returns [ref, isHovered]",
         "isHovered is true between mouseenter and mouseleave",
@@ -167,13 +203,17 @@
       "bonus": [
         "Delay option: hover must persist for N ms before isHovered becomes true"
       ],
-      "demo": "Render a card that changes background when hovered. Show 'hovered' / 'not hovered' text below."
+      "demo": "Render a card that changes background when hovered. Show 'hovered' / 'not hovered' text below.",
+      "stubs": [
+        "function useHover<T extends Element>(): [React.RefObject<T>, boolean] {\n  // TODO: implement\n  return [React.useRef<T>(null), false]\n}"
+      ],
+      "demoCode": "function Demo() {\n  const [ref, isHovered] = useHover<HTMLDivElement>()\n  return (\n    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>\n      <div\n        ref={ref}\n        style={{\n          padding: '2rem',\n          borderRadius: 8,\n          background: isHovered ? '#4c1d95' : '#1e1b4b',\n          transition: 'background 0.15s',\n          textAlign: 'center',\n          cursor: 'default',\n          userSelect: 'none',\n        }}\n      >\n        Hover over me\n      </div>\n      <div style={{ textAlign: 'center', color: isHovered ? '#a78bfa' : '#888' }}>\n        {isHovered ? 'Hovered' : 'Not hovered'}\n      </div>\n    </div>\n  )\n}"
     },
     {
       "id": 11,
       "title": "useClickAway",
       "tags": ["refs", "effects"],
-      "prompt": "Implement `useClickAway<T extends Element>(handler: (event: MouseEvent | TouchEvent) => void): RefObject<T>` that calls handler when a click occurs outside the referenced element.",
+      "prompt": "Implement `useClickAway<T extends Element>(handler: (event: MouseEvent | TouchEvent) => void): React.RefObject<T>` that calls handler when a click occurs outside the referenced element.",
       "required": [
         "Fires handler on mousedown outside the ref element",
         "Also handles touchstart for mobile",
@@ -184,7 +224,11 @@
         "Accept multiple refs",
         "Option to disable the listener"
       ],
-      "demo": "Render a dropdown that closes when you click outside it. The dropdown opens on button click."
+      "demo": "Render a dropdown that closes when you click outside it. The dropdown opens on button click.",
+      "stubs": [
+        "function useClickAway<T extends Element>(handler: (event: MouseEvent | TouchEvent) => void): React.RefObject<T> {\n  // TODO: implement\n  return React.useRef<T>(null)\n}"
+      ],
+      "demoCode": "function Demo() {\n  const [open, setOpen] = React.useState(false)\n  const ref = useClickAway<HTMLDivElement>(() => setOpen(false))\n  return (\n    <div style={{ position: 'relative', display: 'inline-block' }}>\n      <button onClick={() => setOpen(o => !o)}>Toggle dropdown</button>\n      {open && (\n        <div\n          ref={ref}\n          style={{\n            position: 'absolute', top: '2rem', left: 0,\n            background: '#1e1b4b', border: '1px solid #444',\n            borderRadius: 6, padding: '0.75rem', minWidth: '10rem', zIndex: 10,\n          }}\n        >\n          <div>Option 1</div>\n          <div>Option 2</div>\n          <div style={{ color: '#888', fontSize: '0.8rem', marginTop: '0.5rem' }}>Click outside to close</div>\n        </div>\n      )}\n    </div>\n  )\n}"
     },
     {
       "id": 12,
@@ -199,13 +243,17 @@
       "bonus": [
         "SSR-safe: return false (or a provided initialValue) during server-side rendering"
       ],
-      "demo": "Render different layouts for mobile (<768px) and desktop. Show the current query result as text."
+      "demo": "Render different layouts for mobile (<768px) and desktop. Show the current query result as text.",
+      "stubs": [
+        "function useMediaQuery(query: string): boolean {\n  // TODO: implement\n  return false\n}"
+      ],
+      "demoCode": "function Demo() {\n  const isMobile = useMediaQuery('(max-width: 768px)')\n  const isNarrow = useMediaQuery('(max-width: 480px)')\n  const prefersLight = useMediaQuery('(prefers-color-scheme: light)')\n  return (\n    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>\n      <div>≤768px (mobile): <strong style={{ color: isMobile ? '#4ade80' : '#888' }}>{isMobile ? 'yes' : 'no'}</strong></div>\n      <div>≤480px (narrow): <strong style={{ color: isNarrow ? '#4ade80' : '#888' }}>{isNarrow ? 'yes' : 'no'}</strong></div>\n      <div>prefers-light: <strong style={{ color: prefersLight ? '#4ade80' : '#888' }}>{prefersLight ? 'yes' : 'no'}</strong></div>\n      <div style={{ color: '#888', fontSize: '0.8rem' }}>Resize the window to see changes</div>\n    </div>\n  )\n}"
     },
     {
       "id": 13,
       "title": "useIntersectionObserver",
       "tags": ["refs", "effects", "performance"],
-      "prompt": "Implement `useIntersectionObserver(options?: IntersectionObserverInit): [RefObject<Element>, IntersectionObserverEntry | null]` that tracks element visibility.",
+      "prompt": "Implement `useIntersectionObserver(options?: IntersectionObserverInit): [React.RefObject<Element>, IntersectionObserverEntry | null]` that tracks element visibility.",
       "required": [
         "Returns [ref, entry] — attach ref to an element to observe it",
         "entry is null until the first intersection event",
@@ -216,7 +264,11 @@
         "Once option: disconnect after first intersection",
         "freezeOnceVisible: stop updating after element first becomes visible"
       ],
-      "demo": "Render a long scrollable list. The last item has the ref attached. Show 'Last item visible: yes/no' in a fixed header."
+      "demo": "Render a long scrollable list. The last item has the ref attached. Show 'Last item visible: yes/no' in a fixed header.",
+      "stubs": [
+        "function useIntersectionObserver(\n  options?: IntersectionObserverInit\n): [React.RefObject<Element>, IntersectionObserverEntry | null] {\n  // TODO: implement\n  return [React.useRef<Element>(null), null]\n}"
+      ],
+      "demoCode": "function Demo() {\n  const [ref, entry] = useIntersectionObserver({ threshold: 0.5 })\n  const isVisible = entry?.isIntersecting ?? false\n  return (\n    <div>\n      <div style={{\n        position: 'sticky', top: 0,\n        background: isVisible ? '#14532d' : '#1c1917',\n        color: isVisible ? '#4ade80' : '#888',\n        padding: '0.5rem 1rem', borderRadius: 4, marginBottom: '0.5rem',\n      }}>\n        Box visible: {isVisible ? 'YES' : 'NO'} | intersectionRatio: {(entry?.intersectionRatio ?? 0).toFixed(2)}\n      </div>\n      <div style={{ height: '60vh', overflowY: 'scroll', border: '1px solid #333', borderRadius: 4 }}>\n        {Array.from({ length: 20 }, (_, i) => (\n          <div key={i} style={{ padding: '1rem', borderBottom: '1px solid #222' }}>Row {i + 1}</div>\n        ))}\n        <div\n          ref={ref as React.RefObject<HTMLDivElement>}\n          style={{ padding: '1rem', background: '#1e1b4b', textAlign: 'center' }}\n        >\n          ← observed element (scroll here)\n        </div>\n      </div>\n    </div>\n  )\n}"
     },
     {
       "id": 14,
@@ -232,7 +284,11 @@
       "bonus": [
         "Return a stop/start/reset API"
       ],
-      "demo": "Render a live clock (HH:MM:SS). Add Pause/Resume buttons that pass null or a delay."
+      "demo": "Render a live clock (HH:MM:SS). Add Pause/Resume buttons that pass null or a delay.",
+      "stubs": [
+        "function useInterval(callback: () => void, delay: number | null): void {\n  // TODO: implement\n}"
+      ],
+      "demoCode": "function Demo() {\n  const [time, setTime] = React.useState(new Date())\n  const [running, setRunning] = React.useState(true)\n  useInterval(() => setTime(new Date()), running ? 1000 : null)\n  const fmt = (n: number) => String(n).padStart(2, '0')\n  return (\n    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', alignItems: 'flex-start' }}>\n      <div style={{ fontSize: '2rem', fontFamily: 'monospace' }}>\n        {fmt(time.getHours())}:{fmt(time.getMinutes())}:{fmt(time.getSeconds())}\n      </div>\n      <div style={{ display: 'flex', gap: '0.5rem' }}>\n        <button onClick={() => setRunning(true)} disabled={running}>Resume</button>\n        <button onClick={() => setRunning(false)} disabled={!running}>Pause</button>\n      </div>\n    </div>\n  )\n}"
     },
     {
       "id": 15,
@@ -247,7 +303,11 @@
       "bonus": [
         "Expose the count of how many times the callback has fired"
       ],
-      "demo": "Render an auto-incrementing counter that only ticks while a 'Running' toggle is on."
+      "demo": "Render an auto-incrementing counter that only ticks while a 'Running' toggle is on.",
+      "stubs": [
+        "function useIntervalWhen(\n  callback: () => void,\n  options: { ms: number; when: boolean; startImmediately?: boolean }\n): void {\n  // TODO: implement\n}"
+      ],
+      "demoCode": "function Demo() {\n  const [count, setCount] = React.useState(0)\n  const [running, setRunning] = React.useState(false)\n  useIntervalWhen(() => setCount(n => n + 1), { ms: 500, when: running, startImmediately: true })\n  return (\n    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>\n      <div style={{ fontSize: '2rem', fontWeight: 'bold' }}>{count}</div>\n      <div style={{ display: 'flex', gap: '0.5rem' }}>\n        <button onClick={() => setRunning(r => !r)}>{running ? 'Pause' : 'Start'}</button>\n        <button onClick={() => setCount(0)}>Reset</button>\n      </div>\n      <div style={{ color: running ? '#4ade80' : '#888', fontSize: '0.85rem' }}>\n        {running ? 'Running (500ms)' : 'Paused'}\n      </div>\n    </div>\n  )\n}"
     },
     {
       "id": 16,
@@ -264,7 +324,11 @@
       "bonus": [
         "Return isExpired: boolean"
       ],
-      "demo": "Render a 'Self-destructing message' that disappears after 5 seconds. Add Reset and Cancel buttons."
+      "demo": "Render a 'Self-destructing message' that disappears after 5 seconds. Add Reset and Cancel buttons.",
+      "stubs": [
+        "function useTimeout(\n  callback: () => void,\n  delay: number | null\n): { reset: () => void; clear: () => void } {\n  // TODO: implement\n  return { reset: () => {}, clear: () => {} }\n}"
+      ],
+      "demoCode": "function Demo() {\n  const [visible, setVisible] = React.useState(true)\n  const { reset, clear } = useTimeout(() => setVisible(false), visible ? 5000 : null)\n  return (\n    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>\n      <div style={{\n        padding: '1rem', borderRadius: 6,\n        background: visible ? '#1e1b4b' : '#1c1917',\n        color: visible ? '#a78bfa' : '#555',\n        transition: 'all 0.3s',\n      }}>\n        {visible ? 'This message self-destructs in 5 seconds…' : '(message destroyed)'}\n      </div>\n      <div style={{ display: 'flex', gap: '0.5rem' }}>\n        <button onClick={() => { setVisible(true); reset() }}>Reset</button>\n        <button onClick={clear}>Cancel timer</button>\n      </div>\n    </div>\n  )\n}"
     },
     {
       "id": 17,
@@ -281,7 +345,11 @@
         "Return { days, hours, minutes, seconds } object instead of raw seconds",
         "onComplete callback option"
       ],
-      "demo": "Render a countdown timer to a configurable future date. Show days/hours/minutes/seconds. Add Start/Stop/Reset buttons."
+      "demo": "Render a countdown timer to a configurable future date. Show days/hours/minutes/seconds. Add Start/Stop/Reset buttons.",
+      "stubs": [
+        "function useCountdown(\n  targetDate: Date | number\n): [number, { start: () => void; stop: () => void; reset: () => void }] {\n  // TODO: implement\n  return [0, { start: () => {}, stop: () => {}, reset: () => {} }]\n}"
+      ],
+      "demoCode": "function Demo() {\n  const target = React.useMemo(() => Date.now() + 30_000, [])\n  const [seconds, { start, stop, reset }] = useCountdown(target)\n  const m = Math.floor(seconds / 60)\n  const s = seconds % 60\n  const fmt = (n: number) => String(n).padStart(2, '0')\n  return (\n    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>\n      <div style={{ fontSize: '2.5rem', fontFamily: 'monospace' }}>{fmt(m)}:{fmt(s)}</div>\n      <div style={{ display: 'flex', gap: '0.5rem' }}>\n        <button onClick={start}>Start</button>\n        <button onClick={stop}>Stop</button>\n        <button onClick={reset}>Reset</button>\n      </div>\n      {seconds === 0 && <div style={{ color: '#f87171' }}>Expired!</div>}\n    </div>\n  )\n}"
     },
     {
       "id": 18,
@@ -297,7 +365,11 @@
         "Return { stop, start } controls",
         "active option to pause"
       ],
-      "demo": "Render confetti dots that appear at random positions at random intervals (200–800ms)."
+      "demo": "Render confetti dots that appear at random positions at random intervals (200–800ms).",
+      "stubs": [
+        "function useRandomInterval(callback: () => void, minDelay: number, maxDelay: number): void {\n  // TODO: implement\n}"
+      ],
+      "demoCode": "interface Dot { id: number; x: number; y: number; color: string }\nconst COLORS = ['#f87171','#fb923c','#facc15','#4ade80','#60a5fa','#a78bfa','#f472b6']\nfunction Demo() {\n  const [dots, setDots] = React.useState<Dot[]>([])\n  const idRef = React.useRef(0)\n  useRandomInterval(() => {\n    const dot: Dot = {\n      id: idRef.current++,\n      x: Math.random() * 100,\n      y: Math.random() * 100,\n      color: COLORS[Math.floor(Math.random() * COLORS.length)],\n    }\n    setDots(prev => [...prev.slice(-30), dot])\n  }, 200, 800)\n  return (\n    <div style={{ position: 'relative', width: '100%', height: '200px', border: '1px solid #333', borderRadius: 6, overflow: 'hidden' }}>\n      {dots.map(d => (\n        <div key={d.id} style={{\n          position: 'absolute',\n          left: `${d.x}%`, top: `${d.y}%`,\n          width: 8, height: 8, borderRadius: '50%',\n          background: d.color, transform: 'translate(-50%, -50%)',\n        }} />\n      ))}\n    </div>\n  )\n}"
     },
     {
       "id": 19,
@@ -313,7 +385,11 @@
       "bonus": [
         "SSR-safe defaults (0 or undefined when window is not available)"
       ],
-      "demo": "Render a live display of window width × height. Resize the browser to verify it updates."
+      "demo": "Render a live display of window width × height. Resize the browser to verify it updates.",
+      "stubs": [
+        "function useWindowSize(): { width: number; height: number } {\n  // TODO: implement\n  return { width: 0, height: 0 }\n}"
+      ],
+      "demoCode": "function Demo() {\n  const { width, height } = useWindowSize()\n  return (\n    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>\n      <div style={{ fontSize: '1.5rem', fontFamily: 'monospace' }}>{width} × {height}</div>\n      <div style={{ color: '#888', fontSize: '0.85rem' }}>Resize the browser window to see it update</div>\n      <div style={{\n        marginTop: '0.5rem',\n        padding: '0.5rem',\n        background: width < 768 ? '#1e1b4b' : '#14532d',\n        borderRadius: 4, fontSize: '0.8rem',\n      }}>\n        {width < 768 ? 'Mobile (<768px)' : 'Desktop (≥768px)'}\n      </div>\n    </div>\n  )\n}"
     },
     {
       "id": 20,
@@ -329,7 +405,11 @@
       "bonus": [
         "smooth option that uses behavior: 'smooth' in scrollTo"
       ],
-      "demo": "Render a long page (>2000px). Show a fixed 'scroll: x,y' indicator. Add a 'Back to top' button."
+      "demo": "Render a long page (>2000px). Show a fixed 'scroll: x,y' indicator. Add a 'Back to top' button.",
+      "stubs": [
+        "function useWindowScroll(): [{ x: number; y: number }, (pos: { x: number; y: number }) => void] {\n  // TODO: implement\n  return [{ x: 0, y: 0 }, () => {}]\n}"
+      ],
+      "demoCode": "function Demo() {\n  const [{ x, y }, scrollTo] = useWindowScroll()\n  return (\n    <div>\n      <div style={{\n        position: 'sticky', top: 0, zIndex: 10,\n        background: '#0b0b0f', padding: '0.5rem', borderBottom: '1px solid #333',\n        display: 'flex', gap: '1rem', alignItems: 'center',\n      }}>\n        <span style={{ fontFamily: 'monospace' }}>scroll: {Math.round(x)},{Math.round(y)}</span>\n        <button onClick={() => scrollTo({ x: 0, y: 0 })}>Back to top</button>\n        <button onClick={() => scrollTo({ x: 0, y: 1000 })}>Jump to 1000</button>\n      </div>\n      {Array.from({ length: 50 }, (_, i) => (\n        <div key={i} style={{ padding: '1rem', borderBottom: '1px solid #1a1a1a', color: '#555' }}>Row {i + 1}</div>\n      ))}\n    </div>\n  )\n}"
     },
     {
       "id": 21,
@@ -344,7 +424,11 @@
       "bonus": [
         "Format option: (title: string) => string to add a suffix like ' | My App'"
       ],
-      "demo": "Render a multi-step form. Each step sets a different document title. Show the title in a status bar on the page too."
+      "demo": "Render a multi-step form. Each step sets a different document title. Show the title in a status bar on the page too.",
+      "stubs": [
+        "function useDocumentTitle(title: string, options?: { restoreOnUnmount?: boolean }): void {\n  // TODO: implement\n}"
+      ],
+      "demoCode": "function Demo() {\n  const [step, setStep] = React.useState(1)\n  const titles = ['Step 1 — Your Info', 'Step 2 — Preferences', 'Step 3 — Review']\n  useDocumentTitle(titles[step - 1], { restoreOnUnmount: true })\n  return (\n    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>\n      <div style={{ padding: '0.5rem', background: '#1e1b4b', borderRadius: 4, fontFamily: 'monospace', fontSize: '0.85rem' }}>\n        document.title: \"{titles[step - 1]}\"\n      </div>\n      <div style={{ display: 'flex', gap: '0.5rem' }}>\n        {titles.map((t, i) => (\n          <button key={i} onClick={() => setStep(i + 1)} style={{ fontWeight: step === i + 1 ? 'bold' : 'normal' }}>\n            Step {i + 1}\n          </button>\n        ))}\n      </div>\n      <div style={{ color: '#888', fontSize: '0.85rem' }}>Check the browser tab to verify</div>\n    </div>\n  )\n}"
     },
     {
       "id": 22,
@@ -359,7 +443,11 @@
       "bonus": [
         "Support emoji favicon: accept a string emoji and render it to a canvas"
       ],
-      "demo": "Render buttons for different favicon URLs (or emoji). Click each to change the favicon."
+      "demo": "Render buttons for different favicon URLs (or emoji). Click each to change the favicon.",
+      "stubs": [
+        "function useFavicon(url: string): void {\n  // TODO: implement\n}"
+      ],
+      "demoCode": "const FAVICONS = [\n  { label: 'Purple', url: 'data:image/svg+xml,<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 100 100\"><rect width=\"100\" height=\"100\" fill=\"%236d28d9\"/></svg>' },\n  { label: 'Green',  url: 'data:image/svg+xml,<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 100 100\"><rect width=\"100\" height=\"100\" fill=\"%2316a34a\"/></svg>' },\n  { label: 'Red',    url: 'data:image/svg+xml,<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 100 100\"><rect width=\"100\" height=\"100\" fill=\"%23dc2626\"/></svg>' },\n]\nfunction Demo() {\n  const [selected, setSelected] = React.useState(0)\n  useFavicon(FAVICONS[selected].url)\n  return (\n    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>\n      <div style={{ display: 'flex', gap: '0.5rem' }}>\n        {FAVICONS.map((f, i) => (\n          <button key={i} onClick={() => setSelected(i)} style={{ fontWeight: selected === i ? 'bold' : 'normal' }}>\n            {f.label}\n          </button>\n        ))}\n      </div>\n      <div style={{ color: '#888', fontSize: '0.85rem' }}>Check the browser tab favicon to verify</div>\n    </div>\n  )\n}"
     },
     {
       "id": 23,
@@ -375,7 +463,11 @@
         "Auto-reset state after N ms",
         "Fallback using document.execCommand for older browsers"
       ],
-      "demo": "Render a list of code snippets. Each has a 'Copy' button that shows a '✓ Copied!' checkmark for 2 seconds."
+      "demo": "Render a list of code snippets. Each has a 'Copy' button that shows a '✓ Copied!' checkmark for 2 seconds.",
+      "stubs": [
+        "function useCopyToClipboard(): [{ value: string | null; error: Error | null }, (text: string) => Promise<void>] {\n  // TODO: implement\n  return [{ value: null, error: null }, async () => {}]\n}"
+      ],
+      "demoCode": "const SNIPPETS = [\n  \"const greet = (name: string) => `Hello, ${name}!`\",\n  'fetch(\"/api/data\").then(r => r.json())',\n  'document.querySelectorAll(\"[data-id]\").forEach(el => el.remove())',\n]\nfunction Demo() {\n  const [{ value }, copy] = useCopyToClipboard()\n  return (\n    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>\n      {SNIPPETS.map((s, i) => (\n        <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>\n          <code style={{ flex: 1, background: '#111', padding: '0.4rem 0.6rem', borderRadius: 4, fontSize: '0.8rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{s}</code>\n          <button onClick={() => copy(s)} style={{ shrink: 0 }}>\n            {value === s ? '✓ Copied!' : 'Copy'}\n          </button>\n        </div>\n      ))}\n    </div>\n  )\n}"
     },
     {
       "id": 24,
@@ -392,7 +484,11 @@
       "bonus": [
         "Return altitude, speed, heading from the position coords"
       ],
-      "demo": "Render a geolocation card showing coordinates (or error). Add a 'Request Location' button that triggers on demand."
+      "demo": "Render a geolocation card showing coordinates (or error). Add a 'Request Location' button that triggers on demand.",
+      "stubs": [
+        "function useGeolocation(options?: PositionOptions): {\n  loading: boolean\n  latitude: number | null\n  longitude: number | null\n  accuracy: number | null\n  error: GeolocationPositionError | null\n} {\n  // TODO: implement\n  return { loading: false, latitude: null, longitude: null, accuracy: null, error: null }\n}"
+      ],
+      "demoCode": "function Demo() {\n  const { loading, latitude, longitude, accuracy, error } = useGeolocation()\n  return (\n    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>\n      {loading && <div style={{ color: '#facc15' }}>Requesting location…</div>}\n      {error && <div style={{ color: '#f87171' }}>Error: {error.message}</div>}\n      {latitude !== null && (\n        <>\n          <div>Latitude: <strong>{latitude.toFixed(5)}</strong></div>\n          <div>Longitude: <strong>{longitude?.toFixed(5)}</strong></div>\n          <div>Accuracy: <strong>{accuracy?.toFixed(0)}m</strong></div>\n        </>\n      )}\n      {!loading && latitude === null && !error && (\n        <div style={{ color: '#888' }}>Location not requested yet</div>\n      )}\n    </div>\n  )\n}"
     },
     {
       "id": 25,
@@ -408,7 +504,11 @@
       "bonus": [
         "Show a visual battery indicator bar"
       ],
-      "demo": "Render a battery status card. Show level as a percentage and a charging indicator."
+      "demo": "Render a battery status card. Show level as a percentage and a charging indicator.",
+      "stubs": [
+        "function useBattery(): {\n  supported: boolean\n  loading: boolean\n  level: number | null\n  charging: boolean | null\n  chargingTime: number | null\n  dischargingTime: number | null\n} {\n  // TODO: implement\n  return { supported: false, loading: true, level: null, charging: null, chargingTime: null, dischargingTime: null }\n}"
+      ],
+      "demoCode": "function Demo() {\n  const { supported, loading, level, charging, dischargingTime } = useBattery()\n  if (!supported) return <div style={{ color: '#f87171' }}>Battery API not supported in this browser</div>\n  if (loading) return <div style={{ color: '#facc15' }}>Loading battery info…</div>\n  const pct = level !== null ? Math.round(level * 100) : null\n  return (\n    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>\n      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>\n        <div style={{ width: 60, height: 24, border: '2px solid #555', borderRadius: 4, position: 'relative', overflow: 'hidden' }}>\n          <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: `${pct ?? 0}%`, background: (pct ?? 0) < 20 ? '#dc2626' : '#16a34a', transition: 'width 0.5s' }} />\n        </div>\n        <span>{pct ?? '--'}%</span>\n        <span style={{ color: charging ? '#4ade80' : '#888' }}>{charging ? '⚡ Charging' : 'On battery'}</span>\n      </div>\n      {dischargingTime !== null && !charging && <div style={{ color: '#888', fontSize: '0.85rem' }}>{Math.round(dischargingTime / 60)} min remaining</div>}\n    </div>\n  )\n}"
     },
     {
       "id": 26,
@@ -424,7 +524,11 @@
       "bonus": [
         "Return type: '4g' | '3g' | '2g' | 'slow-2g' | null"
       ],
-      "demo": "Render a network status badge (green/red for online/offline). Toggle airplane mode to test."
+      "demo": "Render a network status badge (green/red for online/offline). Toggle airplane mode to test.",
+      "stubs": [
+        "function useNetworkState(): {\n  online: boolean\n  downlink?: number\n  effectiveType?: string\n  rtt?: number\n  saveData?: boolean\n} {\n  // TODO: implement\n  return { online: navigator.onLine }\n}"
+      ],
+      "demoCode": "function Demo() {\n  const { online, downlink, effectiveType, rtt } = useNetworkState()\n  return (\n    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>\n      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>\n        <div style={{ width: 10, height: 10, borderRadius: '50%', background: online ? '#4ade80' : '#f87171' }} />\n        <strong style={{ color: online ? '#4ade80' : '#f87171' }}>{online ? 'Online' : 'Offline'}</strong>\n      </div>\n      {effectiveType && <div>Connection type: <strong>{effectiveType}</strong></div>}\n      {downlink !== undefined && <div>Downlink: <strong>{downlink} Mbps</strong></div>}\n      {rtt !== undefined && <div>RTT: <strong>{rtt}ms</strong></div>}\n      <div style={{ color: '#888', fontSize: '0.85rem' }}>Toggle airplane mode to test offline state</div>\n    </div>\n  )\n}"
     },
     {
       "id": 27,
@@ -439,7 +543,11 @@
       "bonus": [
         "Track total time the page was visible vs hidden"
       ],
-      "demo": "Render a counter that only increments while the page is visible. Switch tabs to pause it."
+      "demo": "Render a counter that only increments while the page is visible. Switch tabs to pause it.",
+      "stubs": [
+        "function useVisibilityChange(): boolean {\n  // TODO: implement\n  return true\n}"
+      ],
+      "demoCode": "function Demo() {\n  const isVisible = useVisibilityChange()\n  const [count, setCount] = React.useState(0)\n  useInterval(() => setCount(n => n + 1), isVisible ? 1000 : null)\n  return (\n    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>\n      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>\n        <div style={{ width: 10, height: 10, borderRadius: '50%', background: isVisible ? '#4ade80' : '#888' }} />\n        <span>Page is <strong>{isVisible ? 'visible' : 'hidden'}</strong></span>\n      </div>\n      <div style={{ fontSize: '2rem', fontFamily: 'monospace' }}>{count}s</div>\n      <div style={{ color: '#888', fontSize: '0.85rem' }}>Counter pauses when you switch tabs</div>\n    </div>\n  )\n}"
     },
     {
       "id": 28,
@@ -456,7 +564,11 @@
         "Accept a custom events list",
         "Return the timestamp of last activity"
       ],
-      "demo": "Render a status indicator: 'Active' (green) or 'Idle' (yellow) after 3 seconds of no input."
+      "demo": "Render a status indicator: 'Active' (green) or 'Idle' (yellow) after 3 seconds of no input.",
+      "stubs": [
+        "function useIdle(timeout: number): boolean {\n  // TODO: implement\n  return false\n}"
+      ],
+      "demoCode": "function Demo() {\n  const isIdle = useIdle(3000)\n  return (\n    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>\n      <div style={{\n        padding: '1.5rem',\n        borderRadius: 8,\n        background: isIdle ? '#422006' : '#14532d',\n        color: isIdle ? '#fbbf24' : '#4ade80',\n        textAlign: 'center',\n        fontSize: '1.25rem',\n        fontWeight: 'bold',\n        transition: 'all 0.3s',\n      }}>\n        {isIdle ? 'Idle' : 'Active'}\n      </div>\n      <div style={{ color: '#888', fontSize: '0.85rem' }}>Stop moving/typing for 3 seconds to trigger idle</div>\n    </div>\n  )\n}"
     },
     {
       "id": 29,
@@ -471,7 +583,11 @@
       "bonus": [
         "Also fire on visibilitychange to hidden"
       ],
-      "demo": "Render a 'Come back!' message counter that increments each time the cursor leaves the page."
+      "demo": "Render a 'Come back!' message counter that increments each time the cursor leaves the page.",
+      "stubs": [
+        "function usePageLeave(onPageLeave: () => void): void {\n  // TODO: implement\n}"
+      ],
+      "demoCode": "function Demo() {\n  const [count, setCount] = React.useState(0)\n  usePageLeave(() => setCount(n => n + 1))\n  return (\n    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>\n      <div style={{ fontSize: '2rem', fontFamily: 'monospace' }}>{count}</div>\n      <div>times cursor left the page</div>\n      <div style={{ color: '#888', fontSize: '0.85rem' }}>Move your cursor outside the browser window</div>\n    </div>\n  )\n}"
     },
     {
       "id": 30,
@@ -486,13 +602,17 @@
       "bonus": [
         "Accept a boolean active prop so the lock can be toggled"
       ],
-      "demo": "Render a modal with a button. Opening the modal locks body scroll. Closing restores it."
+      "demo": "Render a modal with a button. Opening the modal locks body scroll. Closing restores it.",
+      "stubs": [
+        "function useLockBodyScroll(): void {\n  // TODO: implement\n}"
+      ],
+      "demoCode": "function FakeModal({ onClose }: { onClose: () => void }) {\n  useLockBodyScroll()\n  return (\n    <div style={{\n      position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)',\n      display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50,\n    }}>\n      <div style={{ background: '#1e1b4b', padding: '2rem', borderRadius: 8, minWidth: '16rem' }}>\n        <div style={{ marginBottom: '1rem', fontWeight: 'bold' }}>Modal open — body scroll locked</div>\n        <button onClick={onClose}>Close modal</button>\n      </div>\n    </div>\n  )\n}\nfunction Demo() {\n  const [open, setOpen] = React.useState(false)\n  return (\n    <div>\n      {open && <FakeModal onClose={() => setOpen(false)} />}\n      <button onClick={() => setOpen(true)}>Open modal</button>\n      <div style={{ marginTop: '0.5rem', color: '#888', fontSize: '0.85rem' }}>\n        Body overflow is now: <strong>{open ? 'hidden' : 'auto'}</strong>\n      </div>\n      {Array.from({ length: 20 }, (_, i) => (\n        <div key={i} style={{ padding: '0.5rem 0', color: '#555', borderBottom: '1px solid #1a1a1a' }}>Scrollable content row {i + 1}</div>\n      ))}\n    </div>\n  )\n}"
     },
     {
       "id": 31,
       "title": "useMeasure",
       "tags": ["refs", "effects", "performance"],
-      "prompt": "Implement `useMeasure<T extends Element>(): [RefObject<T>, { width: number; height: number; top: number; left: number }]` that measures an element's bounding box using ResizeObserver.",
+      "prompt": "Implement `useMeasure<T extends Element>(): [React.RefObject<T>, { width: number; height: number; top: number; left: number }]` that measures an element's bounding box using ResizeObserver.",
       "required": [
         "Returns [ref, bounds]",
         "bounds updates whenever the element resizes",
@@ -502,13 +622,17 @@
       "bonus": [
         "Also return x, y, right, bottom from DOMRect"
       ],
-      "demo": "Render a resizable textarea (resize: both). Show width × height updating live as the user drags the resize handle."
+      "demo": "Render a resizable textarea (resize: both). Show width × height updating live as the user drags the resize handle.",
+      "stubs": [
+        "function useMeasure<T extends Element>(): [React.RefObject<T>, { width: number; height: number; top: number; left: number }] {\n  // TODO: implement\n  return [React.useRef<T>(null), { width: 0, height: 0, top: 0, left: 0 }]\n}"
+      ],
+      "demoCode": "function Demo() {\n  const [ref, { width, height, top, left }] = useMeasure<HTMLTextAreaElement>()\n  return (\n    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>\n      <textarea\n        ref={ref}\n        defaultValue=\"Drag the resize handle (bottom-right corner) to resize me\"\n        style={{ resize: 'both', minWidth: '15rem', minHeight: '6rem', padding: '0.5rem', background: '#111', color: '#eee', border: '1px solid #333', borderRadius: 4 }}\n      />\n      <div style={{ fontFamily: 'monospace', fontSize: '0.85rem', color: '#888' }}>\n        {Math.round(width)} × {Math.round(height)} px &nbsp;|&nbsp; top: {Math.round(top)}, left: {Math.round(left)}\n      </div>\n    </div>\n  )\n}"
     },
     {
       "id": 32,
       "title": "useMouse",
       "tags": ["effects"],
-      "prompt": "Implement `useMouse(): { x: number; y: number; elementX: number; elementY: number; elementPositionX: number; elementPositionY: number; ref: RefObject<Element> }` that tracks global mouse position and position relative to a ref element.",
+      "prompt": "Implement `useMouse(): { x: number; y: number; elementX: number; elementY: number; elementPositionX: number; elementPositionY: number; ref: React.RefObject<Element> }` that tracks global mouse position and position relative to a ref element.",
       "required": [
         "Tracks window-relative x, y on mousemove",
         "elementX, elementY are mouse position relative to the ref element's top-left",
@@ -518,7 +642,11 @@
       "bonus": [
         "Track whether mouse is currently inside the element (isOver)"
       ],
-      "demo": "Render a tracking box. Show global x,y and element-relative x,y as the mouse moves inside and outside the box."
+      "demo": "Render a tracking box. Show global x,y and element-relative x,y as the mouse moves inside and outside the box.",
+      "stubs": [
+        "function useMouse(): {\n  x: number; y: number\n  elementX: number; elementY: number\n  elementPositionX: number; elementPositionY: number\n  ref: React.RefObject<Element>\n} {\n  // TODO: implement\n  const ref = React.useRef<Element>(null)\n  return { x: 0, y: 0, elementX: 0, elementY: 0, elementPositionX: 0, elementPositionY: 0, ref }\n}"
+      ],
+      "demoCode": "function Demo() {\n  const { x, y, elementX, elementY, ref } = useMouse()\n  return (\n    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>\n      <div>Global: <strong style={{ fontFamily: 'monospace' }}>{x}, {y}</strong></div>\n      <div\n        ref={ref as React.RefObject<HTMLDivElement>}\n        style={{\n          padding: '2rem',\n          border: '1px solid #444',\n          borderRadius: 6,\n          background: '#111',\n          cursor: 'crosshair',\n          userSelect: 'none',\n          textAlign: 'center',\n        }}\n      >\n        Element-relative: <strong style={{ fontFamily: 'monospace' }}>{Math.round(elementX)}, {Math.round(elementY)}</strong>\n      </div>\n    </div>\n  )\n}"
     },
     {
       "id": 33,
@@ -534,7 +662,11 @@
       "bonus": [
         "Prevent default context menu on long press"
       ],
-      "demo": "Render a button that shows 'Tap' on click and 'Long pressed!' after a 500ms hold."
+      "demo": "Render a button that shows 'Tap' on click and 'Long pressed!' after a 500ms hold.",
+      "stubs": [
+        "function useLongPress(\n  callback: (e: MouseEvent | TouchEvent) => void,\n  options?: { delay?: number; onStart?: () => void; onFinish?: () => void; onCancel?: () => void }\n): React.HTMLAttributes<HTMLElement> {\n  // TODO: implement — return event handlers to spread onto the element\n  return {}\n}"
+      ],
+      "demoCode": "function Demo() {\n  const [result, setResult] = React.useState('Press the button…')\n  const handlers = useLongPress(\n    () => setResult('Long pressed! (500ms hold)'),\n    {\n      delay: 500,\n      onStart: () => setResult('Holding…'),\n      onCancel: () => setResult('Tap (released early)'),\n    }\n  )\n  return (\n    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', alignItems: 'flex-start' }}>\n      <button {...handlers} style={{ padding: '1rem 2rem', fontSize: '1rem', userSelect: 'none' }}>\n        Hold me\n      </button>\n      <div style={{ color: '#a78bfa' }}>{result}</div>\n    </div>\n  )\n}"
     },
     {
       "id": 34,
@@ -550,7 +682,11 @@
       "bonus": [
         "accept a boolean removeOnUnmount to delete the script on cleanup"
       ],
-      "demo": "Load the Lodash CDN script. Show the loading status. Once 'ready', render a button that calls _.shuffle([1,2,3])."
+      "demo": "Load the Lodash CDN script. Show the loading status. Once 'ready', render a button that calls _.shuffle([1,2,3]).",
+      "stubs": [
+        "function useScript(src: string): 'idle' | 'loading' | 'ready' | 'error' {\n  // TODO: implement\n  return 'idle'\n}"
+      ],
+      "demoCode": "declare const _: { shuffle: <T>(arr: T[]) => T[] }\nfunction Demo() {\n  const status = useScript('https://cdn.jsdelivr.net/npm/lodash@4/lodash.min.js')\n  const [result, setResult] = React.useState<number[]>([])\n  return (\n    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>\n      <div>Script status: <strong style={{ color: status === 'ready' ? '#4ade80' : status === 'error' ? '#f87171' : '#facc15' }}>{status}</strong></div>\n      {status === 'ready' && (\n        <button onClick={() => setResult(_.shuffle([1, 2, 3, 4, 5]))}>\n          Shuffle [1,2,3,4,5]\n        </button>\n      )}\n      {result.length > 0 && <div style={{ fontFamily: 'monospace' }}>[{result.join(', ')}]</div>}\n    </div>\n  )\n}"
     },
     {
       "id": 35,
@@ -567,7 +703,11 @@
         "Cache results by URL (Map)",
         "refetch() function to manually retry"
       ],
-      "demo": "Render a user card that fetches from https://jsonplaceholder.typicode.com/users/1. Show a skeleton while loading and an error state on failure."
+      "demo": "Render a user card that fetches from https://jsonplaceholder.typicode.com/users/1. Show a skeleton while loading and an error state on failure.",
+      "stubs": [
+        "function useFetch<T>(url: string | null): { data: T | null; loading: boolean; error: Error | null } {\n  // TODO: implement\n  return { data: null, loading: false, error: null }\n}"
+      ],
+      "demoCode": "interface User { id: number; name: string; email: string; phone: string; website: string }\nfunction Demo() {\n  const [userId, setUserId] = React.useState(1)\n  const { data, loading, error } = useFetch<User>(`https://jsonplaceholder.typicode.com/users/${userId}`)\n  return (\n    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>\n      <div style={{ display: 'flex', gap: '0.5rem' }}>\n        {[1,2,3].map(id => (\n          <button key={id} onClick={() => setUserId(id)} style={{ fontWeight: userId === id ? 'bold' : 'normal' }}>User {id}</button>\n        ))}\n      </div>\n      {loading && <div style={{ color: '#facc15' }}>Loading…</div>}\n      {error && <div style={{ color: '#f87171' }}>Error: {error.message}</div>}\n      {data && !loading && (\n        <div style={{ background: '#111', padding: '1rem', borderRadius: 6 }}>\n          <div style={{ fontWeight: 'bold' }}>{data.name}</div>\n          <div style={{ color: '#888' }}>{data.email}</div>\n          <div style={{ color: '#888' }}>{data.phone}</div>\n        </div>\n      )}\n    </div>\n  )\n}"
     },
     {
       "id": 36,
@@ -584,7 +724,11 @@
         "maxRetries option: stop and return false after N attempts",
         "Expose retryCount"
       ],
-      "demo": "Simulate a resource that becomes available after 2 seconds (set a timeout, flip a ref). Show loading spinner until useContinuousRetry returns true."
+      "demo": "Simulate a resource that becomes available after 2 seconds (set a timeout, flip a ref). Show loading spinner until useContinuousRetry returns true.",
+      "stubs": [
+        "function useContinuousRetry(callback: () => boolean, interval: number = 100): boolean {\n  // TODO: implement\n  return false\n}"
+      ],
+      "demoCode": "function Demo() {\n  const readyRef = React.useRef(false)\n  React.useEffect(() => {\n    const t = setTimeout(() => { readyRef.current = true }, 2000)\n    return () => clearTimeout(t)\n  }, [])\n  const isReady = useContinuousRetry(() => readyRef.current, 200)\n  return (\n    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>\n      {isReady ? (\n        <div style={{ color: '#4ade80', fontWeight: 'bold' }}>Resource ready!</div>\n      ) : (\n        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#facc15' }}>\n          <span style={{ animation: 'spin 1s linear infinite', display: 'inline-block' }}>⏳</span>\n          Waiting for resource (becomes available after 2s)…\n        </div>\n      )}\n    </div>\n  )\n}"
     },
     {
       "id": 37,
@@ -601,7 +745,11 @@
         "maxHistory option to cap stack size",
         "clear() to reset to initial state"
       ],
-      "demo": "Render a drawing canvas (SVG lines). Each stroke is a state entry. Show Undo/Redo buttons with disabled state."
+      "demo": "Render a drawing canvas (SVG lines). Each stroke is a state entry. Show Undo/Redo buttons with disabled state.",
+      "stubs": [
+        "function useHistoryState<T>(initialState: T): {\n  state: T\n  set: (s: T) => void\n  undo: () => void\n  redo: () => void\n  canUndo: boolean\n  canRedo: boolean\n  history: T[]\n  pointer: number\n} {\n  // TODO: implement\n  return {\n    state: initialState,\n    set: () => {},\n    undo: () => {},\n    redo: () => {},\n    canUndo: false,\n    canRedo: false,\n    history: [initialState],\n    pointer: 0,\n  }\n}"
+      ],
+      "demoCode": "function Demo() {\n  const { state: text, set, undo, redo, canUndo, canRedo, history, pointer } = useHistoryState('')\n  return (\n    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>\n      <textarea\n        value={text}\n        onChange={e => set(e.target.value)}\n        placeholder=\"Type here — each change is a history entry\"\n        rows={3}\n        style={{ padding: '0.5rem', background: '#111', color: '#eee', border: '1px solid #333', borderRadius: 4, resize: 'vertical' }}\n      />\n      <div style={{ display: 'flex', gap: '0.5rem' }}>\n        <button onClick={undo} disabled={!canUndo}>Undo</button>\n        <button onClick={redo} disabled={!canRedo}>Redo</button>\n      </div>\n      <div style={{ color: '#888', fontSize: '0.8rem' }}>history length: {history.length} | pointer: {pointer}</div>\n    </div>\n  )\n}"
     },
     {
       "id": 38,
@@ -617,13 +765,17 @@
         "reset() function to restore to initialState",
         "TypeScript: returned setter is strongly typed to Partial<T>"
       ],
-      "demo": "Render a user profile form (name, email, age). Each field updates independently with a single setState call."
+      "demo": "Render a user profile form (name, email, age). Each field updates independently with a single setState call.",
+      "stubs": [
+        "function useObjectState<T extends Record<string, unknown>>(\n  initialState: T\n): [T, (patch: Partial<T> | ((prev: T) => Partial<T>)) => void] {\n  // TODO: implement\n  return [initialState, () => {}]\n}"
+      ],
+      "demoCode": "interface Profile { name: string; email: string; age: number }\nfunction Demo() {\n  const [profile, setProfile] = useObjectState<Profile>({ name: 'Sahil', email: 'sahil@example.com', age: 28 })\n  return (\n    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>\n      <input value={profile.name} onChange={e => setProfile({ name: e.target.value })} placeholder=\"Name\" />\n      <input value={profile.email} onChange={e => setProfile({ email: e.target.value })} placeholder=\"Email\" />\n      <input type=\"number\" value={profile.age} onChange={e => setProfile({ age: Number(e.target.value) })} placeholder=\"Age\" />\n      <pre style={{ background: '#111', padding: '0.75rem', borderRadius: 4, fontSize: '0.8rem', color: '#a78bfa' }}>\n        {JSON.stringify(profile, null, 2)}\n      </pre>\n    </div>\n  )\n}"
     },
     {
       "id": 39,
       "title": "useDefault",
       "tags": ["state"],
-      "prompt": "Implement `useDefault<T>(initialValue: T, defaultValue: T): [T, Dispatch<SetStateAction<T | null | undefined>>]` that returns defaultValue when state is null or undefined.",
+      "prompt": "Implement `useDefault<T>(initialValue: T, defaultValue: T): [T, React.Dispatch<React.SetStateAction<T | null | undefined>>]` that returns defaultValue when state is null or undefined.",
       "required": [
         "Wraps useState",
         "Returns defaultValue when the state is null or undefined",
@@ -633,7 +785,11 @@
       "bonus": [
         "Accept a custom isEmpty predicate instead of null/undefined check"
       ],
-      "demo": "Render an input bound to useDefault('', '(empty)'). Show how setting it to null/undefined renders the default value."
+      "demo": "Render an input bound to useDefault('', '(empty)'). Show how setting it to null/undefined renders the default value.",
+      "stubs": [
+        "function useDefault<T>(\n  initialValue: T,\n  defaultValue: T\n): [T, React.Dispatch<React.SetStateAction<T | null | undefined>>] {\n  // TODO: implement\n  return [initialValue, () => {}]\n}"
+      ],
+      "demoCode": "function Demo() {\n  const [value, setValue] = useDefault('hello', '(empty)')\n  return (\n    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>\n      <input value={value} onChange={e => setValue(e.target.value)} placeholder=\"Type something\" />\n      <div>Current value: <strong>\"{value}\"</strong></div>\n      <div style={{ display: 'flex', gap: '0.5rem' }}>\n        <button onClick={() => setValue(null)}>Set null</button>\n        <button onClick={() => setValue(undefined)}>Set undefined</button>\n        <button onClick={() => setValue('hello')}>Reset to 'hello'</button>\n      </div>\n      <div style={{ color: '#888', fontSize: '0.85rem' }}>null/undefined should fall back to \"(empty)\"</div>\n    </div>\n  )\n}"
     },
     {
       "id": 40,
@@ -651,7 +807,11 @@
         "filter(predicate) helper",
         "sort(compareFn) helper"
       ],
-      "demo": "Render a todo list. Add items with an input, remove with an X button, reorder with up/down buttons."
+      "demo": "Render a todo list. Add items with an input, remove with an X button, reorder with up/down buttons.",
+      "stubs": [
+        "function useList<T>(initialList: T[]): [T[], {\n  set: (list: T[]) => void\n  push: (...items: T[]) => void\n  removeAt: (index: number) => void\n  insertAt: (index: number, item: T) => void\n  updateAt: (index: number, item: T) => void\n  clear: () => void\n}] {\n  // TODO: implement\n  return [initialList, { set: () => {}, push: () => {}, removeAt: () => {}, insertAt: () => {}, updateAt: () => {}, clear: () => {} }]\n}"
+      ],
+      "demoCode": "function Demo() {\n  const [items, { push, removeAt, insertAt }] = useList(['Buy milk', 'Walk the dog'])\n  const [input, setInput] = React.useState('')\n  return (\n    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>\n      <div style={{ display: 'flex', gap: '0.5rem' }}>\n        <input value={input} onChange={e => setInput(e.target.value)} placeholder=\"New item\" onKeyDown={e => { if (e.key === 'Enter' && input) { push(input); setInput('') } }} />\n        <button onClick={() => { if (input) { push(input); setInput('') } }}>Add</button>\n      </div>\n      {items.map((item, i) => (\n        <div key={i} style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>\n          <span style={{ flex: 1 }}>{item}</span>\n          <button onClick={() => insertAt(i, '--- inserted ---')}>+above</button>\n          <button onClick={() => removeAt(i)}>✕</button>\n        </div>\n      ))}\n      {items.length === 0 && <div style={{ color: '#888' }}>List is empty</div>}\n    </div>\n  )\n}"
     },
     {
       "id": 41,
@@ -667,7 +827,11 @@
       "bonus": [
         "has(key) and get(key) helpers in the actions object"
       ],
-      "demo": "Render a key-value store editor: add entries with a key+value form, delete individual entries, show all entries in a table."
+      "demo": "Render a key-value store editor: add entries with a key+value form, delete individual entries, show all entries in a table.",
+      "stubs": [
+        "function useMap<K, V>(\n  initialMap?: Map<K, V> | [K, V][]\n): [Map<K, V>, { set: (key: K, value: V) => void; delete: (key: K) => void; clear: () => void; reset: () => void }] {\n  // TODO: implement\n  const init = initialMap instanceof Map ? initialMap : new Map(initialMap)\n  return [init, { set: () => {}, delete: () => {}, clear: () => {}, reset: () => {} }]\n}"
+      ],
+      "demoCode": "function Demo() {\n  const [map, { set, delete: del, clear, reset }] = useMap<string, string>([['name', 'Sahil'], ['role', 'frontend']])\n  const [k, setK] = React.useState('')\n  const [v, setV] = React.useState('')\n  return (\n    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>\n      <div style={{ display: 'flex', gap: '0.5rem' }}>\n        <input value={k} onChange={e => setK(e.target.value)} placeholder=\"key\" style={{ width: '6rem' }} />\n        <input value={v} onChange={e => setV(e.target.value)} placeholder=\"value\" style={{ width: '8rem' }} />\n        <button onClick={() => { if (k) { set(k, v); setK(''); setV('') } }}>Set</button>\n        <button onClick={clear}>Clear</button>\n        <button onClick={reset}>Reset</button>\n      </div>\n      <table style={{ fontSize: '0.85rem', borderCollapse: 'collapse' }}>\n        <thead><tr><th style={{ textAlign: 'left', color: '#888', padding: '0.25rem 0.5rem' }}>Key</th><th style={{ textAlign: 'left', color: '#888', padding: '0.25rem 0.5rem' }}>Value</th><th /></tr></thead>\n        <tbody>\n          {[...map.entries()].map(([key, val]) => (\n            <tr key={key}>\n              <td style={{ padding: '0.25rem 0.5rem' }}>{key}</td>\n              <td style={{ padding: '0.25rem 0.5rem' }}>{val}</td>\n              <td><button onClick={() => del(key)}>✕</button></td>\n            </tr>\n          ))}\n        </tbody>\n      </table>\n    </div>\n  )\n}"
     },
     {
       "id": 42,
@@ -683,7 +847,11 @@
       "bonus": [
         "has(item) helper"
       ],
-      "demo": "Render a multi-select tag picker. Clicking a tag toggles selection. Show selected tags in a summary."
+      "demo": "Render a multi-select tag picker. Clicking a tag toggles selection. Show selected tags in a summary.",
+      "stubs": [
+        "function useSet<T>(initialSet?: Set<T> | T[]): [Set<T>, {\n  add: (item: T) => void\n  delete: (item: T) => void\n  toggle: (item: T) => void\n  clear: () => void\n  reset: () => void\n}] {\n  // TODO: implement\n  const init = Array.isArray(initialSet) ? new Set(initialSet) : (initialSet ?? new Set<T>())\n  return [init, { add: () => {}, delete: () => {}, toggle: () => {}, clear: () => {}, reset: () => {} }]\n}"
+      ],
+      "demoCode": "const TAGS = ['React', 'TypeScript', 'CSS', 'Accessibility', 'Performance', 'Testing']\nfunction Demo() {\n  const [selected, { toggle, clear }] = useSet<string>([])\n  return (\n    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>\n      <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>\n        {TAGS.map(tag => (\n          <button\n            key={tag}\n            onClick={() => toggle(tag)}\n            style={{\n              padding: '0.25rem 0.75rem', borderRadius: 9999,\n              background: selected.has(tag) ? '#6d28d9' : '#222',\n              color: selected.has(tag) ? '#fff' : '#888',\n              border: '1px solid', borderColor: selected.has(tag) ? '#7c3aed' : '#333',\n            }}\n          >\n            {tag}\n          </button>\n        ))}\n      </div>\n      <div style={{ fontSize: '0.85rem', color: '#888' }}>\n        Selected: {selected.size > 0 ? [...selected].join(', ') : '(none)'}\n      </div>\n      <button onClick={clear} disabled={selected.size === 0} style={{ alignSelf: 'flex-start' }}>Clear all</button>\n    </div>\n  )\n}"
     },
     {
       "id": 43,
@@ -700,7 +868,11 @@
         "peek() without removing",
         "isEmpty boolean"
       ],
-      "demo": "Render a message queue: add messages with an input, process (remove) the oldest one with a button. Show front/back labels."
+      "demo": "Render a message queue: add messages with an input, process (remove) the oldest one with a button. Show front/back labels.",
+      "stubs": [
+        "function useQueue<T>(initialQueue?: T[]): {\n  queue: T[]\n  add: (item: T) => void\n  remove: () => T | undefined\n  clear: () => void\n  first: T | undefined\n  last: T | undefined\n  size: number\n} {\n  // TODO: implement\n  const q = initialQueue ?? []\n  return { queue: q, add: () => {}, remove: () => undefined, clear: () => {}, first: q[0], last: q[q.length - 1], size: q.length }\n}"
+      ],
+      "demoCode": "function Demo() {\n  const { queue, add, remove, first, last, size } = useQueue<string>([])\n  const [input, setInput] = React.useState('')\n  return (\n    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>\n      <div style={{ display: 'flex', gap: '0.5rem' }}>\n        <input value={input} onChange={e => setInput(e.target.value)} placeholder=\"Message\" onKeyDown={e => { if (e.key === 'Enter' && input) { add(input); setInput('') } }} />\n        <button onClick={() => { if (input) { add(input); setInput('') } }}>Enqueue</button>\n        <button onClick={remove} disabled={size === 0}>Process (dequeue)</button>\n      </div>\n      <div style={{ fontSize: '0.85rem', color: '#888' }}>Size: {size} | First: {first ?? '-'} | Last: {last ?? '-'}</div>\n      <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>\n        {queue.map((item, i) => (\n          <div key={i} style={{ padding: '0.25rem 0.5rem', background: i === 0 ? '#1e1b4b' : '#111', borderRadius: 3, fontSize: '0.85rem' }}>\n            {i === 0 ? '← front: ' : `${i}: `}{item}\n          </div>\n        ))}\n        {queue.length === 0 && <div style={{ color: '#555' }}>Queue is empty</div>}\n      </div>\n    </div>\n  )\n}"
     },
     {
       "id": 44,
@@ -715,7 +887,11 @@
       "bonus": [
         "useIsomorphicLayoutEffect — use useLayoutEffect on client, useEffect on server"
       ],
-      "demo": "Render a component that shows window.innerWidth. Use useIsClient to guard against SSR crashes."
+      "demo": "Render a component that shows window.innerWidth. Use useIsClient to guard against SSR crashes.",
+      "stubs": [
+        "function useIsClient(): boolean {\n  // TODO: implement\n  return false\n}"
+      ],
+      "demoCode": "function Demo() {\n  const isClient = useIsClient()\n  return (\n    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>\n      <div>isClient: <strong style={{ color: isClient ? '#4ade80' : '#f87171' }}>{String(isClient)}</strong></div>\n      {isClient ? (\n        <div>window.innerWidth: <strong>{window.innerWidth}px</strong></div>\n      ) : (\n        <div style={{ color: '#888' }}>Waiting for client mount to read window…</div>\n      )}\n      <div style={{ color: '#888', fontSize: '0.85rem' }}>Should show true + window size immediately after mount</div>\n    </div>\n  )\n}"
     },
     {
       "id": 45,
@@ -730,7 +906,11 @@
       "bonus": [
         "useUpdateEffect — like useEffect but skips the first render"
       ],
-      "demo": "Render a form that shows 'Initial render' on mount and 'Updated' on every re-render. Use the hook to differentiate."
+      "demo": "Render a form that shows 'Initial render' on mount and 'Updated' on every re-render. Use the hook to differentiate.",
+      "stubs": [
+        "function useIsFirstRender(): boolean {\n  // TODO: implement\n  return true\n}"
+      ],
+      "demoCode": "function Demo() {\n  const isFirst = useIsFirstRender()\n  const [count, setCount] = React.useState(0)\n  return (\n    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>\n      <div style={{\n        padding: '0.75rem 1rem', borderRadius: 6,\n        background: isFirst ? '#1e1b4b' : '#14532d',\n        color: isFirst ? '#a78bfa' : '#4ade80',\n      }}>\n        {isFirst ? 'Initial render' : 'Re-rendered'}\n      </div>\n      <div>Render trigger count: {count}</div>\n      <button onClick={() => setCount(n => n + 1)}>Force re-render</button>\n    </div>\n  )\n}"
     },
     {
       "id": 46,
@@ -745,7 +925,11 @@
       "bonus": [
         "useWhyDidYouRender — log which prop or state changed to cause the re-render"
       ],
-      "demo": "Render a component with several pieces of state. Show the render count. Add buttons that change state to trigger re-renders."
+      "demo": "Render a component with several pieces of state. Show the render count. Add buttons that change state to trigger re-renders.",
+      "stubs": [
+        "function useRenderCount(): number {\n  // TODO: implement\n  return 1\n}"
+      ],
+      "demoCode": "function Demo() {\n  const renderCount = useRenderCount()\n  const [a, setA] = React.useState(0)\n  const [b, setB] = React.useState(0)\n  return (\n    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>\n      <div style={{ fontFamily: 'monospace', fontSize: '1.25rem' }}>Renders: <strong>{renderCount}</strong></div>\n      <div style={{ display: 'flex', gap: '0.5rem' }}>\n        <button onClick={() => setA(n => n + 1)}>State A: {a}</button>\n        <button onClick={() => setB(n => n + 1)}>State B: {b}</button>\n      </div>\n      <div style={{ color: '#888', fontSize: '0.85rem' }}>Each button click triggers a re-render</div>\n    </div>\n  )\n}"
     },
     {
       "id": 47,
@@ -761,7 +945,11 @@
       "bonus": [
         "Accept a filter so it only logs when specific values change"
       ],
-      "demo": "Render a component that re-renders on a 1s interval. Show the render info table. Verify sinceLastRender is ~1000ms."
+      "demo": "Render a component that re-renders on a 1s interval. Show the render info table. Verify sinceLastRender is ~1000ms.",
+      "stubs": [
+        "function useRenderInfo(name: string = 'Component'): {\n  name: string\n  renders: number\n  sinceLastRender: number\n  timestamp: number\n} {\n  // TODO: implement\n  return { name, renders: 1, sinceLastRender: 0, timestamp: Date.now() }\n}"
+      ],
+      "demoCode": "function Demo() {\n  const [tick, setTick] = React.useState(0)\n  useInterval(() => setTick(n => n + 1), 1000)\n  const info = useRenderInfo('Demo')\n  return (\n    <div style={{ fontFamily: 'monospace', fontSize: '0.85rem', display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>\n      <div>name: <strong>{info.name}</strong></div>\n      <div>renders: <strong>{info.renders}</strong></div>\n      <div>sinceLastRender: <strong>{info.sinceLastRender}ms</strong> (should be ~1000)</div>\n      <div>timestamp: <strong>{info.timestamp}</strong></div>\n      <div style={{ color: '#888', marginTop: '0.25rem' }}>tick: {tick} | check console for logs</div>\n    </div>\n  )\n}"
     },
     {
       "id": 48,
@@ -777,7 +965,11 @@
       "bonus": [
         "Accept a custom logger function"
       ],
-      "demo": "Render a component with a counter prop. Increment the counter. Observe mount, update, and unmount logs in the console."
+      "demo": "Render a component with a counter prop. Increment the counter. Observe mount, update, and unmount logs in the console.",
+      "stubs": [
+        "function useLogger(componentName: string, ...props: unknown[]): void {\n  // TODO: implement\n}"
+      ],
+      "demoCode": "function Tracked({ count }: { count: number }) {\n  useLogger('Tracked', { count })\n  return <div style={{ padding: '0.5rem', background: '#111', borderRadius: 4 }}>count prop: {count}</div>\n}\nfunction Demo() {\n  const [count, setCount] = React.useState(0)\n  const [mounted, setMounted] = React.useState(true)\n  return (\n    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>\n      <div style={{ display: 'flex', gap: '0.5rem' }}>\n        <button onClick={() => setCount(n => n + 1)}>Increment (+1 update log)</button>\n        <button onClick={() => setMounted(m => !m)}>{mounted ? 'Unmount' : 'Mount'} component</button>\n      </div>\n      {mounted && <Tracked count={count} />}\n      <div style={{ color: '#888', fontSize: '0.85rem' }}>Open the browser console to see logs</div>\n    </div>\n  )\n}"
     },
     {
       "id": 49,
@@ -793,7 +985,11 @@
       "bonus": [
         "Return navigator.languages (full array of preferred languages)"
       ],
-      "demo": "Render the preferred language and a greeting translated into that language (English, Spanish, French, German, Japanese)."
+      "demo": "Render the preferred language and a greeting translated into that language (English, Spanish, French, German, Japanese).",
+      "stubs": [
+        "function usePreferredLanguage(): string {\n  // TODO: implement\n  return 'en'\n}"
+      ],
+      "demoCode": "const GREETINGS: Record<string, string> = {\n  en: 'Hello!', es: 'Hola!', fr: 'Bonjour!', de: 'Hallo!', ja: 'こんにちは!', pt: 'Olá!', zh: '你好!',\n}\nfunction Demo() {\n  const lang = usePreferredLanguage()\n  const base = lang.split('-')[0]\n  const greeting = GREETINGS[base] ?? `Hello! (no translation for '${lang}')`\n  return (\n    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>\n      <div>Preferred language: <strong style={{ fontFamily: 'monospace' }}>{lang}</strong></div>\n      <div style={{ fontSize: '1.5rem' }}>{greeting}</div>\n      <div style={{ color: '#888', fontSize: '0.85rem' }}>Change browser language in settings to test languagechange event</div>\n    </div>\n  )\n}"
     },
     {
       "id": 50,
@@ -809,7 +1005,11 @@
       "bonus": [
         "Return a simplified isPortrait / isLandscape boolean"
       ],
-      "demo": "Render an orientation indicator that rotates a device icon to match the current orientation. Test on a mobile device or DevTools."
+      "demo": "Render an orientation indicator that rotates a device icon to match the current orientation. Test on a mobile device or DevTools.",
+      "stubs": [
+        "function useOrientation(): { angle: number; type: 'landscape-primary' | 'landscape-secondary' | 'portrait-primary' | 'portrait-secondary' } {\n  // TODO: implement\n  return { angle: 0, type: 'portrait-primary' }\n}"
+      ],
+      "demoCode": "function Demo() {\n  const { angle, type } = useOrientation()\n  const isLandscape = type.startsWith('landscape')\n  return (\n    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', alignItems: 'flex-start' }}>\n      <div\n        style={{\n          width: isLandscape ? 80 : 48,\n          height: isLandscape ? 48 : 80,\n          border: '3px solid #a78bfa',\n          borderRadius: 8,\n          display: 'flex', alignItems: 'center', justifyContent: 'center',\n          transition: 'all 0.4s',\n          fontSize: '1.5rem',\n        }}\n      >\n        📱\n      </div>\n      <div>Type: <strong style={{ fontFamily: 'monospace' }}>{type}</strong></div>\n      <div>Angle: <strong>{angle}°</strong></div>\n      <div style={{ color: '#888', fontSize: '0.85rem' }}>Rotate device or use DevTools to test</div>\n    </div>\n  )\n}"
     }
   ]
 }

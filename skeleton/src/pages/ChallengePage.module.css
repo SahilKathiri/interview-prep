@@ -6,7 +6,7 @@
   overflow: hidden;
 }
 
-.layout[data-brief-open='true'] {
+.layout[data-brief-open="true"] {
   grid-template-columns: 380px 1fr;
 }
 
@@ -25,22 +25,40 @@
 
 .brief {
   border-right: 1px solid var(--color-border);
-  overflow-y: auto;
   background: var(--color-bg);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.briefContent {
+  flex: 1;
+  overflow-y: auto;
   /* Custom scrollbar — subtle */
   scrollbar-width: thin;
   scrollbar-color: var(--color-border) transparent;
 }
 
-.brief::-webkit-scrollbar {
+.briefFooter {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  padding: 0.625rem 1rem;
+  border-top: 1px solid var(--color-border);
+  background: var(--color-bg);
+}
+
+.briefContent::-webkit-scrollbar {
   width: 4px;
 }
 
-.brief::-webkit-scrollbar-track {
+.briefContent::-webkit-scrollbar-track {
   background: transparent;
 }
 
-.brief::-webkit-scrollbar-thumb {
+.briefContent::-webkit-scrollbar-thumb {
   background: var(--color-border);
   border-radius: 2px;
 }
@@ -58,7 +76,7 @@
   sensible browser-like defaults scoped only to the solution sandbox.
   Your solution's own styles always override these.
 */
-.solution h1 {
+/* .solution h1 {
   font-size: 1.75rem;
   font-weight: 700;
   letter-spacing: -0.025em;
@@ -124,4 +142,4 @@
   padding: 0.1em 0.3em;
   border-radius: 3px;
   color: #c4b5fd;
-}
+} */

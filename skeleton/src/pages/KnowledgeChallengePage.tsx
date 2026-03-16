@@ -8,8 +8,8 @@ import {
 } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import {
-  getKnowledgeSectionData,
   getKnowledgeChallengeAttempts,
+  getKnowledgeChallengeByFolder,
   getKnowledgeChallengeMd,
   getKnowledgeSolutionLoader,
   isKnowledgeAttemptDone,
@@ -26,14 +26,10 @@ export default function KnowledgeChallengePage() {
   const [briefOpen, setBriefOpen] = useState(true)
   const [done, setDone] = useState(() => isKnowledgeAttemptDone(section, folder))
 
-  const match = folder.match(/^challenge-(\d+)-attempt-(\d+)$/)
-  const challengeId = match ? parseInt(match[1], 10) : null
-
-  const data = useMemo(() => getKnowledgeSectionData(section), [section])
-  const challenge = data?.challenges.find((c) => c.id === challengeId)
+  const challenge = useMemo(() => getKnowledgeChallengeByFolder(section, folder), [section, folder])
   const allAttempts = useMemo(
-    () => getKnowledgeChallengeAttempts(section, challengeId ?? -1),
-    [section, challengeId],
+    () => getKnowledgeChallengeAttempts(section, challenge?.id ?? -1),
+    [section, challenge?.id],
   )
   const md = useMemo(() => getKnowledgeChallengeMd(section, folder), [section, folder])
   const loader = useMemo(() => getKnowledgeSolutionLoader(section, folder), [section, folder])
@@ -44,7 +40,7 @@ export default function KnowledgeChallengePage() {
   }, [folder]) // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!challenge || !loader) {
-    const looksValid = /^challenge-\d+-attempt-\d+$/.test(folder)
+    const looksValid = /^.+-\d+$/.test(folder)
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center max-w-sm">

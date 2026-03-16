@@ -8,8 +8,8 @@ import {
 } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import {
-  getChallengesData,
   getChallengeAttempts,
+  getChallengeByFolder,
   getChallengeMd,
   getSolutionLoader,
   isAttemptDone,
@@ -17,8 +17,32 @@ import {
 import ChallengeBrief from '../components/ChallengeBrief'
 import SolutionErrorBoundary from '../components/SolutionErrorBoundary'
 import styles from './ChallengePage.module.css'
+import type { Challenge } from '../types'
 
 const ChallengeBriefMemo = memo(ChallengeBrief)
+
+// ─── Claude prompt builder ────────────────────────────────────────────────────
+
+function buildClaudePrompt(c: Challenge): string {
+  return `You are a reference implementation assistant for a front-end interview challenge.
+
+Challenge: ${c.title}
+Difficulty: ${c.difficulty} | Time budget: ${c.time_budget_minutes} min
+
+Prompt:
+${c.prompt}
+
+Required criteria:
+${c.required.map((r) => `- ${r}`).join('\n')}
+
+Bonus criteria:
+${c.bonus.map((b) => `- ${b}`).join('\n')}
+
+Interviewer focus:
+${c.interviewer_focus}
+
+Please walk me through a reference implementation: the key design decisions, component structure, and any tricky parts. Don't just give me the final code — explain the thinking behind each decision.`
+}
 
 export default function ChallengePage() {
   const { company = '', folder = '' } = useParams()
@@ -26,14 +50,10 @@ export default function ChallengePage() {
   const [briefOpen, setBriefOpen] = useState(true)
   const [done, setDone] = useState(() => isAttemptDone(company, folder))
 
-  const match = folder.match(/^challenge-(\d+)-attempt-(\d+)$/)
-  const challengeId = match ? parseInt(match[1], 10) : null
-
-  const data = useMemo(() => getChallengesData(company), [company])
-  const challenge = data?.challenges.find((c) => c.id === challengeId)
+  const challenge = useMemo(() => getChallengeByFolder(company, folder), [company, folder])
   const allAttempts = useMemo(
-    () => getChallengeAttempts(company, challengeId ?? -1),
-    [company, challengeId],
+    () => getChallengeAttempts(company, challenge?.id ?? -1),
+    [company, challenge?.id],
   )
   const md = useMemo(() => getChallengeMd(company, folder), [company, folder])
   const loader = useMemo(() => getSolutionLoader(company, folder), [company, folder])
@@ -44,7 +64,7 @@ export default function ChallengePage() {
   }, [folder]) // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!challenge || !loader) {
-    const looksValid = /^challenge-\d+-attempt-\d+$/.test(folder)
+    const looksValid = /^.+-\d+$/.test(folder)
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center max-w-sm">
@@ -197,13 +217,30 @@ export default function ChallengePage() {
       {/* ── Brief panel ──────────────────────────────────────────── */}
       {briefOpen && (
         <aside className={styles.brief}>
-          {md ? (
-            <ChallengeBriefMemo content={md} />
-          ) : (
-            <div className="p-5 text-[--color-text-muted] text-xs font-mono">
-              CHALLENGE.md not found
-            </div>
-          )}
+          <div className={styles.briefContent}>
+            {md ? (
+              <ChallengeBriefMemo content={md} />
+            ) : (
+              <div className="p-5 text-[--color-text-muted] text-xs font-mono">
+                CHALLENGE.md not found
+              </div>
+            )}
+          </div>
+          <div className={styles.briefFooter}>
+            <button
+              onClick={() => {
+                const prompt = buildClaudePrompt(challenge)
+                window.open(
+                  `https://claude.ai/new?q=${encodeURIComponent(prompt)}`,
+                  '_blank',
+                  'noopener',
+                )
+              }}
+              className="text-xs px-3 py-1.5 rounded-md ring-1 ring-[--color-accent-border] text-violet-400 bg-[--color-accent-subtle] hover:bg-violet-500/15 hover:text-violet-300 transition-[background-color,color] duration-100 cursor-pointer"
+            >
+              ask claude ↗
+            </button>
+          </div>
         </aside>
       )}
 

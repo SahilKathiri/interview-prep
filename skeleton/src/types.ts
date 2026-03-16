@@ -25,7 +25,7 @@ export interface ChallengesData {
 
 export interface AttemptInfo {
   company: string
-  folder: string       // "challenge-01-attempt-1"
+  folder: string       // e.g. "character-counter-1", "use-debounce-2"
   challengeId: number
   attemptN: number
 }
@@ -41,8 +41,12 @@ export interface KnowledgeChallenge {
   prompt: string
   required: string[]
   bonus: string[]
-  /** For hooks: the test component spec. For ui: same as prompt extension. */
+  /** Human-readable description of the demo component. */
   demo: string
+  /** hooks section only: TypeScript function stubs to scaffold (one string per function). */
+  stubs?: string[]
+  /** hooks section only: Pre-written React demo component source that calls the hook. */
+  demoCode?: string
 }
 
 export interface KnowledgeSectionData {
@@ -59,7 +63,7 @@ export interface KnowledgeSectionData {
 
 export interface KnowledgeAttemptInfo {
   section: KnowledgeSectionSlug
-  folder: string       // "challenge-01-attempt-1"
+  folder: string       // e.g. "use-toggle-1", "accordion-1"
   challengeId: number
   attemptN: number
 }

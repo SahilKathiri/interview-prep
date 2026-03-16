@@ -1,11 +1,13 @@
-import { useParams, Link } from 'react-router-dom'
-import { useState, useMemo } from 'react'
+import { useParams, Link, useSearchParams } from 'react-router-dom'
+import { useState, useMemo, useRef, useEffect } from 'react'
 import {
   getKnowledgeSectionData,
   getKnowledgeChallengeAttempts,
+  getAllKnowledgeAttempts,
   isKnowledgeAttemptDone,
 } from '../data'
-import type { KnowledgeChallenge } from '../types'
+import type { KnowledgeChallenge, KnowledgeAttemptInfo } from '../types'
+import KnowledgeChallengeBriefModal from '../components/KnowledgeChallengeBriefModal'
 
 // ─── KnowledgeSectionPage ────────────────────────────────────────────────────
 
@@ -20,6 +22,69 @@ export default function KnowledgeSectionPage() {
 
   const [activeTags, setActiveTags] = useState<Set<string>>(new Set())
   const isFiltered = activeTags.size > 0
+
+  // ── Preview modal state ──────────────────────────────────────────────────
+  const [previewChallenge, setPreviewChallenge] = useState<KnowledgeChallenge | null>(null)
+  const [previewStarting, setPreviewStarting] = useState(false)
+  const [previewError, setPreviewError] = useState('')
+  const previewTriggerRef = useRef<HTMLButtonElement | null>(null)
+  const previewAttempts = useMemo(
+    () => getKnowledgeChallengeAttempts(section, previewChallenge?.id ?? -1),
+    [section, previewChallenge?.id],
+  )
+
+  // Auto-open modal when navigated here via shuffle (?shuffle=<id>)
+  const [searchParams, setSearchParams] = useSearchParams()
+  useEffect(() => {
+    const shuffleId = searchParams.get('shuffle')
+    if (!shuffleId || !data) return
+    const challenge = data.challenges.find((c) => c.id === Number(shuffleId))
+    if (challenge) setPreviewChallenge(challenge)
+    setSearchParams({}, { replace: true })
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  function handleShuffle() {
+    if (!data) return
+    const attemptedIds = new Set(
+      getAllKnowledgeAttempts()
+        .filter((a) => a.section === section)
+        .map((a) => a.challengeId),
+    )
+    const pool = data.challenges.filter((c) => !attemptedIds.has(c.id))
+    const source = pool.length > 0 ? pool : data.challenges
+    const pick = source[Math.floor(Math.random() * source.length)]
+    if (pick) setPreviewChallenge(pick)
+  }
+
+  function openPreview(challenge: KnowledgeChallenge, trigger: HTMLButtonElement) {
+    previewTriggerRef.current = trigger
+    setPreviewChallenge(challenge)
+  }
+
+  function closePreview() {
+    setPreviewChallenge(null)
+    setPreviewStarting(false)
+    setPreviewError('')
+  }
+
+  async function handleModalStart() {
+    if (!previewChallenge) return
+    setPreviewStarting(true)
+    setPreviewError('')
+    try {
+      const res = await fetch('/api/start-knowledge-challenge', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ section, challengeId: previewChallenge.id }),
+      })
+      const json = await res.json() as { folderName?: string; error?: string }
+      if (!res.ok) throw new Error(json.error ?? 'Failed to create workspace')
+      window.location.href = `/knowledge/${section}/${json.folderName}`
+    } catch (err: unknown) {
+      setPreviewStarting(false)
+      setPreviewError((err as Error).message)
+    }
+  }
 
   if (!data) {
     return (
@@ -79,11 +144,21 @@ export default function KnowledgeSectionPage() {
         >
           ← Knowledge
         </Link>
-        <div className="flex items-baseline gap-4">
-          <h1 className="text-2xl font-bold text-white tracking-tight">{data.meta.title}</h1>
-          <span className="text-sm text-[--color-text-muted] tabular">
-            {totalAttempted} / {data.challenges.length} attempted
-          </span>
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex items-baseline gap-4">
+            <h1 className="text-2xl font-bold text-white tracking-tight">{data.meta.title}</h1>
+            <span className="text-sm text-[--color-text-muted] tabular">
+              {totalAttempted} / {data.challenges.length} attempted
+            </span>
+          </div>
+          <button
+            onClick={handleShuffle}
+            title="Pick a random unattempted challenge from this section"
+            className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-md font-mono text-violet-300 bg-violet-500/10 ring-1 ring-violet-500/20 hover:bg-violet-500/20 hover:text-violet-200 hover:ring-violet-500/40 transition-[background-color,color,box-shadow] duration-150 cursor-pointer shrink-0"
+          >
+            <span className="text-sm leading-none">⇄</span>
+            shuffle
+          </button>
         </div>
         <p className="text-[--color-text-secondary] text-sm mt-1">{data.meta.description}</p>
         {data.meta.source && (
@@ -133,6 +208,20 @@ export default function KnowledgeSectionPage() {
         </div>
       )}
 
+      {/* Preview modal */}
+      <KnowledgeChallengeBriefModal
+        challenge={previewChallenge}
+        section={section}
+        onClose={closePreview}
+        onStart={handleModalStart}
+        isStarting={previewStarting}
+        attempts={previewAttempts}
+        triggerRef={previewTriggerRef}
+      />
+      {previewError && (
+        <p className="text-[10px] text-red-400 font-mono mt-2">{previewError}</p>
+      )}
+
       {/* Challenge list */}
       {filtered.length === 0 ? (
         <div className="py-16 text-center">
@@ -147,7 +236,12 @@ export default function KnowledgeSectionPage() {
       ) : (
         <div className="space-y-px">
           {filtered.map((c) => (
-            <KnowledgeChallengeRow key={c.id} challenge={c} section={section} />
+            <KnowledgeChallengeRow
+              key={c.id}
+              challenge={c}
+              section={section}
+              onPreview={openPreview}
+            />
           ))}
         </div>
       )}
@@ -160,12 +254,14 @@ export default function KnowledgeSectionPage() {
 function KnowledgeChallengeRow({
   challenge: c,
   section,
+  onPreview,
 }: {
   challenge: KnowledgeChallenge
   section: string
+  onPreview: (challenge: KnowledgeChallenge, trigger: HTMLButtonElement) => void
 }) {
   const attempts = getKnowledgeChallengeAttempts(section, c.id)
-  const latestAttempt = attempts[attempts.length - 1]
+  const latestAttempt = attempts[attempts.length - 1] as KnowledgeAttemptInfo | undefined
   const [status, setStatus] = useState<'idle' | 'loading' | 'error'>('idle')
   const [errorMsg, setErrorMsg] = useState('')
 
@@ -188,27 +284,20 @@ function KnowledgeChallengeRow({
   }
 
   return (
-    <div className="relative flex items-center gap-4 px-3 py-2.5 rounded-lg hover:bg-[--color-surface] transition-colors duration-100 group">
-      {/* Stretched link to latest attempt */}
-      {latestAttempt && status === 'idle' && (
-        <Link
-          to={`/knowledge/${section}/${latestAttempt.folder}`}
-          className="absolute inset-0 rounded-lg z-0"
-          aria-label={`${c.title} — open attempt ${latestAttempt.attemptN}`}
-          tabIndex={-1}
-        />
-      )}
-
+    <div className="flex items-center gap-4 px-3 py-2.5 rounded-lg hover:bg-[--color-surface] transition-colors duration-100 group">
       {/* ID */}
-      <span className="relative z-10 w-7 shrink-0 text-right font-mono text-[11px] text-[--color-text-muted] tabular select-none">
+      <span className="w-7 shrink-0 text-right font-mono text-[11px] text-[--color-text-muted] tabular select-none">
         {String(c.id).padStart(2, '0')}
       </span>
 
       {/* Title + tags */}
-      <div className="relative z-10 flex-1 min-w-0">
-        <span className="text-sm text-[--color-text-secondary] group-hover:text-[--color-text] transition-colors duration-100 leading-snug">
+      <div className="flex-1 min-w-0">
+        <button
+          onClick={(e) => onPreview(c, e.currentTarget)}
+          className="text-sm text-[--color-text-secondary] group-hover:text-[--color-text] hover:text-white transition-colors duration-100 leading-snug text-left cursor-pointer underline-offset-2 hover:underline decoration-[--color-border-hover]"
+        >
           {c.title}
-        </span>
+        </button>
         {c.tags.length > 0 && (
           <div className="flex gap-1 mt-1 flex-wrap">
             {c.tags.map((tag) => (
@@ -226,8 +315,8 @@ function KnowledgeChallengeRow({
         )}
       </div>
 
-      {/* Right side: attempts + start button */}
-      <div className="relative z-10 flex items-center gap-1.5 shrink-0">
+      {/* Right side: attempts + start/new-attempt button */}
+      <div className="flex items-center gap-1.5 shrink-0">
         {attempts.map((a) => {
           const isDone = isKnowledgeAttemptDone(section, a.folder)
           return (
@@ -264,6 +353,18 @@ function KnowledgeChallengeRow({
           >
             +
           </button>
+        )}
+
+        {/* Quick-open latest attempt — only visible if there is one and start button is hidden */}
+        {latestAttempt && status === 'idle' && (
+          <Link
+            to={`/knowledge/${section}/${latestAttempt.folder}`}
+            tabIndex={-1}
+            aria-label={`Open latest attempt for ${c.title}`}
+            className="text-[11px] px-1.5 py-px rounded font-mono text-[--color-text-muted] hover:text-[--color-text-secondary] transition-colors duration-100 opacity-0 group-hover:opacity-100"
+          >
+            →
+          </Link>
         )}
       </div>
     </div>

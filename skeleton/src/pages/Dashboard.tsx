@@ -1,5 +1,5 @@
-import { Link } from 'react-router-dom'
-import { getCompanyNames, getChallengesData, getCompanyAttempts, getKnowledgeSections, getKnowledgeSectionData, getKnowledgeSectionAttempts } from '../data'
+import { Link, useNavigate } from 'react-router-dom'
+import { getCompanyNames, getChallengesData, getCompanyAttempts, getKnowledgeSections, getKnowledgeSectionData, getKnowledgeSectionAttempts, getShufflePick } from '../data'
 import type { Difficulty } from '../types'
 
 const DIFF_BG: Record<Difficulty, string> = {
@@ -11,17 +11,33 @@ const DIFF_BG: Record<Difficulty, string> = {
 export default function Dashboard() {
   const companies = getCompanyNames()
   const knowledgeSections = getKnowledgeSections()
+  const navigate = useNavigate()
+
+  function handleShuffle() {
+    const pick = getShufflePick()
+    if (pick) navigate(pick.path)
+  }
 
   return (
     <div className="min-h-screen max-w-5xl mx-auto px-8 py-12">
       <header className="mb-12">
-        <div className="flex items-baseline gap-3 mb-2">
-          <h1 className="text-xl font-semibold tracking-tight text-white">
-            Interview Prep
-          </h1>
-          <span className="text-[11px] font-mono text-[--color-text-muted] uppercase tracking-widest">
-            v1
-          </span>
+        <div className="flex items-center justify-between gap-4 mb-2">
+          <div className="flex items-baseline gap-3">
+            <h1 className="text-xl font-semibold tracking-tight text-white">
+              Interview Prep
+            </h1>
+            <span className="text-[11px] font-mono text-[--color-text-muted] uppercase tracking-widest">
+              v1
+            </span>
+          </div>
+          <button
+            onClick={handleShuffle}
+            title="Pick a random unattempted challenge"
+            className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-md font-mono text-violet-300 bg-violet-500/10 ring-1 ring-violet-500/20 hover:bg-violet-500/20 hover:text-violet-200 hover:ring-violet-500/40 transition-[background-color,color,box-shadow] duration-150 cursor-pointer"
+          >
+            <span className="text-sm leading-none">⇄</span>
+            shuffle
+          </button>
         </div>
         <p className="text-[--color-text-secondary] text-sm">
           {companies.length === 0
